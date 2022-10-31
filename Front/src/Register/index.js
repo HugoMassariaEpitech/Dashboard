@@ -22,7 +22,7 @@ const auth = getAuth(app);
 
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        window.location = "../Dashboard/"; // Not Connected -> Connexion Page
+        // window.location = "../Dashboard/"; // Not Connected -> Connexion Page
     }
 });
 
