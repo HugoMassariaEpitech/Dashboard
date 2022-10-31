@@ -1,0 +1,22 @@
+{
+    "name": "useless_dashboard",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+      "build:css": "postcss ./input.css -o ./dist/output.css",
+      "watch:css": "watch 'npm run build:css' ./src/**"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+      "autoprefixer": "^10.4.11",
+      "postcss": "^8.4.16",
+      "tailwindcss": "^3.1.8",
+      "flowbite": "^1.5.3",
+      "watch": "^1.0.2"
+    },
+    "dependencies": {
+    }
+  }
