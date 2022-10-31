@@ -4,10 +4,10 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-      'primary': '#11203A',
-      'secondary': '#FFCA0C',
-      'bg_dark': 'rgba(30,36,49,1)',
-      'dark_lighter': 'rgba(35,43,58,1)',
+        'primary': '#11203A',
+        'secondary': '#FFCA0C',
+        'bg_dark': 'rgba(30,36,49,1)',
+        'dark_lighter': 'rgba(35,43,58,1)',
       },
       padding: {
         '1/2': '50%',
