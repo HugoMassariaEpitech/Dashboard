@@ -15,7 +15,8 @@
                 
       <div>
         <!-- TODO: Import la navbar depuis un seul et même .html -->
-        <nav class="lg:hidden py-6 px-6 bg-gray-800">
+        <!-- Horizontal Nav -->
+        <nav class="lg:hidden py-6 px-6 bg-gray-800 border-b-2 border-gray-500">
           <div class="flex items-center justify-between">
             <a class="text-2xl text-white font-semibold" href="#">
               <img class="h-10" src="artemis-assets/logos/artemis-logo.svg" alt="" width="auto">
@@ -28,9 +29,10 @@
             </button>
           </div>
         </nav>
-        <div class="hidden lg:block navbar-menu relative z-50">
+        <!-- Vertical Nav -->
+        <div class="hidden lg:block navbar-menu relative z-500">
           <div class="navbar-backdrop fixed lg:hidden inset-0 bg-gray-800 opacity-10"></div>
-          <nav class="fixed top-0 left-0 bottom-0 flex flex-col w-3/4 lg:w-80 sm:max-w-xs pt-6 pb-8 bg-gray-800 overflow-y-auto">
+          <nav class="fixed top-0 left-0 bottom-0 flex flex-col w-3/4 lg:w-80 sm:max-w-xs pt-6 pb-8 bg-gray-800 overflow-y-auto border-r-2 border-gray-500">
             <div class="flex w-full items-center px-6 pb-6 mb-6 lg:border-b border-gray-700">
               <a class="text-xl text-white font-semibold" href="#">
                 <img class="h-8" src="artemis-assets/logos/artemis-logo.svg" alt="" width="auto">
@@ -191,7 +193,9 @@
           </nav>
         </div>
         <div class="mx-auto lg:ml-80">
-      <section class="py-8">
+
+      <!-- Table -->
+      <section class="py-8 bg-dark_lighter">
         <div class="container px-4 mx-auto">
           <div class="p-4 mb-6 bg-white shadow rounded overflow-x-auto">
             <table class="table-auto w-full">
