@@ -1,7 +1,8 @@
 window.onload = function() {
+    console.log("oui");
     // By default select the hard skills input
     // ? console.log("checked true") : document.getElementById("[hard-skills]")
-    document.querySelector("[hard-skills]").checked = true;
+    // document.querySelector("[hard-skills]").checked = true;
 
     const dropdownMenu = document.getElementById('dropdownButton');
     const dropdownContent = document.getElementById('dropdownContent');

@@ -60,7 +60,7 @@ function addElementToWidget(type) {
     var Element = document.createElement('li');
     Element.className = 'bg-dark_lighter rounded-xl mb-4';
     const Container = document.createElement("div");
-    Container.className = "flex items-center pl-3 py-3 pr-2 text-gray-50 hover:bg-gray-900 rounded-xl";
+    Container.className = "flex items-center pl-3 py-3 pr-2 text-gray-50 rounded-xl";
     Element.appendChild(Container);
     const Logo = document.createElement("span");
     Logo.className = "inline-block mr-3";
@@ -90,7 +90,7 @@ function addElementToService(type) {
     var Element = document.createElement('li');
     Element.className = 'bg-dark_lighter rounded-xl mb-4';
     const Container = document.createElement("div");
-    Container.className = "flex items-center pl-3 py-3 pr-2 text-gray-50 hover:bg-gray-900 rounded-xl";
+    Container.className = "flex items-center pl-3 py-3 pr-2 text-gray-50 rounded-xl";
     Element.appendChild(Container);
     const Logo = document.createElement("span");
     Logo.className = "inline-block mr-3";
