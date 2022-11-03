@@ -18,6 +18,7 @@ module.exports = {
         'formContact': "url(Assets/BGFormContact.webp)",
         'AlfonZoAcademyMockup': "url(Assets/AlfonZoAcademyMockup.webp)",
         'RoswellMockup': "url(Assets/RoswellMockup.webp)",
+        'flagFR': "url(Assets/Flags/la-france.png)",
       }
     },
   },
