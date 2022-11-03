@@ -1,9 +1,13 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Select all the services
-    const Jokes = document.getElementById('Jokes');
-    const News = document.getElementById('News');
-    const Stocks = document.getElementById('Stocks');
-    const ISS = document.getElementById('ISS');
+    // Add
+    const JokesAdd = document.getElementById('JokesAdd');
+    const NewsAdd = document.getElementById('NewsAdd');
+    const StocksAdd = document.getElementById('StocksAdd');
+    const ISSAdd = document.getElementById('ISSAdd');
+    
+    // Get the service list
+    const serviceList = document.getElementById('serviceList');
     // Get the widget list
     const widgetList = document.getElementById('widgetList');
 
@@ -33,58 +37,77 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     // To add a widget from the navbar
-    Jokes.addEventListener('click', function() {
-        // Add the Jokes widget
-        addWidget('Jokes');
-    });
+    // JokesAdd.addEventListener('click', function() {
+    //     // Add the Jokes widget
+    //     addWidget('Jokes');
+    //     const JokesRemove = document.getElementById('JokesRemove');
+    // });
 
-    News.addEventListener('click', function() {
-        // Add the News widget
-        addWidget('News');
-    });
+    // NewsAdd.addEventListener('click', function() {
+    //     // Add the News widget
+    //     addWidget('News');
+    // });
 
-    Stocks.addEventListener('click', function() {
-        // Add the Stocks widget
-        addWidget('Stocks');
-    });
+    // StocksAdd.addEventListener('click', function() {
+    //     // Add the Stocks widget
+    //     addWidget('Stocks');
+    // });
 
-    ISS.addEventListener('click', function() {
-        // Add the ISS widget
-        addWidget('ISS');
-    });
+    // ISSAdd.addEventListener('click', function() {
+    //     // Add the ISS widget
+    //     addWidget('ISS');
+    // });
 
-    function addWidget(service) {
-        addWidgetToNav(service);
-        addDashboardWidget(service);
-    }
+    // function addWidget(service) {
+    //     addWidgetToNav(service);
+    //     // addDashboardWidget(service);
+    // }
 
-    function addWidgetToNav(service) {
+    // TODO: Import les différents bouts de code depuis des fichiers séparés
+    function addElementToNav(element, type) {
+        console.log(element, type);
+
         // Add a widget to the dashboard
-        var li = document.createElement('li');
-        li.className = 'bg-dark_lighter rounded-xl mb-4';
-        // In the li add the code
-        // Selon le service changer le nom et le SVG
-        li.innerHTML = 
-         `<div class='flex items-center pl-3 py-3 pr-2 text-gray-50 hover:bg-gray-900 rounded-xl'>`
-        +"    <span class='inline-block mr-3'>"
-        +`       ${SVG[service]}`
-        +"    </span>"
-        +`    <span>${service}</span>`
-        +"    <div class='flex flex-row ml-auto'>"
-        +"    <span class='flex justify-center items-center ml-auto bg-gray-600 hover:bg-blue-500 active:bg-blue-600 w-6 h-6 mr-2 text-xs rounded-full cursor-pointer'>"
-        +"      <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 46 46' class='p-1'>"
-        +"        <path d='m19.4 44-1-6.3q-.95-.35-2-.95t-1.85-1.25l-5.9 2.7L4 30l5.4-3.95q-.1-.45-.125-1.025Q9.25 24.45 9.25 24q0-.45.025-1.025T9.4 21.95L4 18l4.65-8.2 5.9 2.7q.8-.65 1.85-1.25t2-.9l1-6.35h9.2l1 6.3q.95.35 2.025.925Q32.7 11.8 33.45 12.5l5.9-2.7L44 18l-5.4 3.85q.1.5.125 1.075.025.575.025 1.075t-.025 1.05q-.025.55-.125 1.05L44 30l-4.65 8.2-5.9-2.7q-.8.65-1.825 1.275-1.025.625-2.025.925l-1 6.3ZM24 30.5q2.7 0 4.6-1.9 1.9-1.9 1.9-4.6 0-2.7-1.9-4.6-1.9-1.9-4.6-1.9-2.7 0-4.6 1.9-1.9 1.9-1.9 4.6 0 2.7 1.9 4.6 1.9 1.9 4.6 1.9Zm0-3q-1.45 0-2.475-1.025Q20.5 25.45 20.5 24q0-1.45 1.025-2.475Q22.55 20.5 24 20.5q1.45 0 2.475 1.025Q27.5 22.55 27.5 24q0 1.45-1.025 2.475Q25.45 27.5 24 27.5Zm0-3.5Zm-2.2 17h4.4l.7-5.6q1.65-.4 3.125-1.25T32.7 32.1l5.3 2.3 2-3.6-4.7-3.45q.2-.85.325-1.675.125-.825.125-1.675 0-.85-.1-1.675-.1-.825-.35-1.675L40 17.2l-2-3.6-5.3 2.3q-1.15-1.3-2.6-2.175-1.45-.875-3.2-1.125L26.2 7h-4.4l-.7 5.6q-1.7.35-3.175 1.2-1.475.85-2.625 2.1L10 13.6l-2 3.6 4.7 3.45q-.2.85-.325 1.675-.125.825-.125 1.675 0 .85.125 1.675.125.825.325 1.675L8 30.8l2 3.6 5.3-2.3q1.2 1.2 2.675 2.05Q19.45 35 21.1 35.4Z' fill='currentColor'/>"
-        +"      </svg>"
-        +"    </span>"
-        +"    <span class='flex justify-center items-center ml-auto hover:bg-blue-500 bg-gray-600 active:bg-blue-700 w-6 h-6 text-xs rounded-full cursor-pointer'>"
-        +"       <svg id='widget' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512' class='p-1'>"
-        +"         <path d='M432 256c0 17.7-14.3 32-32 32L48 288c-17.7 0-32-14.3-32-32s14.3-32 32-32l352 0c17.7 0 32 14.3 32 32z' fill='white'/>"
-        +"       </svg>"
-        +"    </span>"
-        +"    </div>"
-        +"</div>"
-
-        widgetList.appendChild(li);
+        var Element = document.createElement('li');
+    
+        Element.className = 'bg-dark_lighter rounded-xl mb-4';
+    
+        const Container = document.createElement("div");
+    
+        Container.className = "flex items-center pl-3 py-3 pr-2 text-gray-50 hover:bg-gray-900 rounded-xl";
+    
+        Element.appendChild(Container);
+    
+        const Logo = document.createElement("span");
+    
+        Logo.className = "inline-block mr-3";
+    
+        Logo.innerHTML = SVG[type];
+    
+        Container.appendChild(Logo);
+    
+        const Text = document.createElement("span");
+    
+        Text.innerHTML = type;
+    
+        Container.appendChild(Text);
+    
+        const DivAdd = document.createElement("div");
+    
+        DivAdd.className = "flex flex-row ml-auto";
+    
+        Container.appendChild(DivAdd);
+    
+        const DivSpan = document.createElement("div");
+    
+        DivSpan.className = "flex justify-center items-center ml-auto hover:bg-blue-500 bg-gray-600 active:bg-blue-700 w-6 h-6 text-xs rounded-full cursor-pointer";
+    
+        DivSpan.innerHTML = `<svg id='${element}' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512' class='p-1'><path d='M432 256c0 17.7-14.3 32-32 32L48 288c-17.7 0-32-14.3-32-32s14.3-32 32-32l352 0c17.7 0 32 14.3 32 32z' fill='white'/></svg>`;
+    
+        DivAdd.appendChild(DivSpan);
+    
+        widgetList.appendChild(Element);
+    
     }
 
     function addWidgetToDashboard(service) {
@@ -94,17 +117,62 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     // To remove a widget 
+    // JokesRemove.addEventListener('click', function() {
+    //     // Remove the Jokes widget
+    //     removeWidget('JokesRemove');
+    // });
+
+    // NewsRemove.addEventListener('click', function() {
+    //     // Remove the News widget
+    //     removeWidget('NewsRemove');
+    // });
+
+    // StocksRemove.addEventListener('click', function() {
+    //     // Remove the Stocks widget
+    //     removeWidget('StocksRemove');
+    // });
+
+    // ISSRemove.addEventListener('click', function() {
+    //     // Remove the ISS widget
+    //     removeWidget('ISSRemove');
+    // });
+
+    function removeWidget(service) {
+        removeWidgetFromNav(service);
+        // removeWidgetFromDashboard(service);
+    }
 
     // To remove a widget from the Dashboard
+    function removeWidgetFromNav(service) {
+        // Remove the widget from the navbar
+        var li = document.getElementById(service);
+        console.log(li);
+        // li.parentNode.removeChild(li);
+    }
 
     // To remove a widget from the navbar
     document.addEventListener('click', function(e) {
         // e.target.id === window.event.target.id
         // Remove the dom element if it's a widget
         if (e.target.id === 'widget') {
-            console.log("yes");
-            // Remove the widget
+            console.log("widget");
+            // Remove widget from navbar
             e.target.parentElement.parentElement.parentElement.remove();
-        } 
+            // Add service to dashboard
+            console.log(e.target.parentElement.parentElement.parentElement.innerHTML);
+            addElementToNav('service', e.target.id);
+            
+            // Remove widget from dashboard
+
+        } else if (e.target.id === 'service') {
+            // console.log(e.target);
+            // Remove service from navbar
+            e.target.parentElement.parentElement.parentElement.remove();
+            // Add widget to navbar
+            var type = e.target.parentElement.parentElement.children[1].innerHTML;
+            addElementToNav('widget', type);
+            // Add service to dashboard
+            
+        }
     }, false);
 });
