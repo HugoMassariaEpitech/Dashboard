@@ -5,6 +5,7 @@
     "main": "index.js",
     "scripts": {
         "build:css": "postcss ./input.css -o ./dist/output.css",
+        "buildProd:css": "npx postcss dist/outputDev.css > ./dist/outputProd.css",
         "watch:css": "watch 'npm run build:css' ./src/**"
     },
     "keywords": [],
@@ -12,6 +13,7 @@
     "license": "ISC",
     "devDependencies": {
         "autoprefixer": "^10.4.11",
+        "cssnano": "^5.1.14",
         "flowbite": "^1.5.3",
         "postcss": "^8.4.16",
         "postcss-cli": "^10.0.0",
