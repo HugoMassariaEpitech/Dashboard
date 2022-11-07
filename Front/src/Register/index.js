@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.13.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.13.0/firebase-analytics.js";
-import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut, FacebookAuthProvider} from "https://www.gstatic.com/firebasejs/9.13.0/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut, FacebookAuthProvider} from "https://www.gstatic.com/firebasejs/9.13.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBcYKq1S_3ICRarZJoqvYaS08r18vV7W7k",
@@ -24,6 +24,14 @@ onAuthStateChanged(auth, (user) => {
     if (user) {
         // window.location = "../Dashboard/"; // Not Connected -> Connexion Page
     }
+});
+
+// Create account
+
+$("form").submit(function(event) {
+    const Data = $("form").serializeArray();
+    createUserWithEmailAndPassword(auth, Data[1].value, Data[2].value);
+    return false;
 });
 
 // SignIn with Google
