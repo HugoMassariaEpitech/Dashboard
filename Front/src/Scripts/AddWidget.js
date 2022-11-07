@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.13.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.13.0/firebase-analytics.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut, FacebookAuthProvider } from "https://www.gstatic.com/firebasejs/9.13.0/firebase-auth.js";
-import { getDatabase, get, ref, set, onValue, connectDatabaseEmulator, update, push, query, orderByChild, equalTo, off } from "https://www.gstatic.com/firebasejs/9.13.0/firebase-database.js";
+import { getDatabase, get, ref, set, child, onValue, connectDatabaseEmulator, update, push, query, orderByChild, equalTo, off } from "https://www.gstatic.com/firebasejs/9.13.0/firebase-database.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBcYKq1S_3ICRarZJoqvYaS08r18vV7W7k",
@@ -38,10 +38,14 @@ function getUserData() {
             $("#serviceList").empty();
             $("#widgetList").empty();
             for (const [key, value] of Object.entries(snapshot.val())) {
-                if (value) {
-                    addElementToWidget(key);
-                } else {
-                    addElementToService(key);
+                if (key == "widget") {
+                    for (const [key, value] of Object.entries(snapshot.val().widget)) {
+                        if (value.status) {
+                            addElementToWidget(key);
+                        } else {
+                            addElementToService(key);
+                        }
+                    }
                 }
             }
         }
@@ -81,8 +85,8 @@ function addElementToWidget(type) {
     document.getElementById("widgetList").appendChild(Element);
 }
 function widgetEnable(data) {
-    var Update = {};
-    Update[data.currentTarget.param.key] = true;
+    const Update = {};
+    Update['/widget/' + data.currentTarget.param.key + '/status/'] = true;
     update(ref(database, auth.currentUser.uid), Update);
 }
 function addElementToService(type) {
@@ -111,7 +115,7 @@ function addElementToService(type) {
     document.getElementById("serviceList").appendChild(Element);
 }
 function widgetDisable(data) {
-    var Update = {};
-    Update[data.currentTarget.param.key] = false;
-    update(ref(database, auth.currentUser.uid), Update);
+    const updates = {};
+    updates['/widget/' + data.currentTarget.param.key + '/status'] = false;
+    update(ref(database, auth.currentUser.uid), updates);
 }
