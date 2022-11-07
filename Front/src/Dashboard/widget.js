@@ -9,23 +9,56 @@ var map = new mapboxgl.Map({
 });
 map.scrollZoom.disable();
 
-getJoke();
-function getJoke() {
+// Définir des valeurs minimales pour le rafraichissement des données
+// Get depuis le front les données
+// Build l'url avec les données
+// Passer l'url au fonction get, pour qu'elle sexecute et boom ça fonctionne
+
+document.addEventListener('click', function(el) {
+    if(el.target.id == "updateParam") {
+        var url = "http://localhost:9090/api/ChuckNorris";
+
+        // Les données sont récupérées depuis le front
+        var refreshRate = el.target.parentElement.parentElement.children[0].children[0].children[1].children[0].value;
+        var country = el.target.parentElement.parentElement.children[0].children[1].children[1].children[0].value;
+        var category = el.target.parentElement.parentElement.children[0].children[2].children[1].children[0].value;
+        if(country != "" && category != "") {
+            url += "?country=" + country + "&category=" + category;
+        }
+
+        if(category != "") {
+            url += "?category=" + category;
+            }
+        }
+        // Grace au el je pourrai update au bon endroit
+    }
+    console.log(url);
+    // getJoke(url);
+});
+
+
+// setInterval(function() {
+//     getJoke();
+// }, 5000);
+function getJoke(url) {
     $.ajax({type:"GET", url:"http://localhost:9090/api/ChuckNorris", data:"", dataType: "json", success: function(data) {
         $("#ChuckNorrisJoke").html(data.value);
     }, error: function(data) {
-        $(".Form").find(".FormMessage").html(data.responseJSON.message);
+        // $(".Form").find(".FormMessage").html(data.responseJSON.message);
+        console.log(data);
     }});
 }
 
-getNews();
+setInterval(getNews(), 10000);
+
 function getNews() {
-    $.ajax({type:"GET", url:"http://localhost:9090/api/News", data:"", dataType: "json", success: function(data) {
-        $("#NewsTitle").html(data.articles[19].description);
-        $("#NewsDescription").html(data.articles[19].content);
-        $("#NewsPaper").html(data.articles[19].author);
+    $.ajax({type:"GET", url:"http://localhost:9090/api/News?param=us", data:"", dataType: "json", success: function(data) {
+        $("#NewsTitle").html(data.articles[1].description);
+        $("#NewsDescription").html(data.articles[1].content);
+        $("#NewsPaper").html(data.articles[1].author);
     }, error: function(data) {
-        $(".Form").find(".FormMessage").html(data.responseJSON.message);
+        // $(".Form").find(".FormMessage").html(data.responseJSON.message);
+        console.log(data);
     }});
 }
 
@@ -43,3 +76,14 @@ function getISSPosition() {
         $(".Form").find(".FormMessage").html(data.responseJSON.message);
     }});
 }
+
+
+document.addEventListener('click', function(el) {
+    if(el.target.id == "gear") {
+        if(el.target.parentElement.parentElement.parentElement.children[1].classList.contains("hidden")) {  
+            el.target.parentElement.parentElement.parentElement.children[1].classList.remove("hidden");
+        } else {
+            el.target.parentElement.parentElement.parentElement.children[1].classList.add('hidden');
+        }
+    }
+});

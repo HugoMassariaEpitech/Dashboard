@@ -6,6 +6,7 @@ module.exports = {
       colors: {
         'primary': '#11203A',
         'secondary': '#FFCA0C',
+        'thirdary': '#372BDD',
         'bg_dark': 'rgba(26,32,44,1)',
         'dark_lighter': 'rgba(35,43,58,1)',
       },
@@ -21,6 +22,10 @@ module.exports = {
         'flagFR': "url(Assets/Flags/la-france.png)",
       }
     },
+    transitionProperty: {
+      'auto': 'auto',
+      'spacing': 'margin, padding',
+    }
   },
   plugins: [
     require('flowbite/plugin'),
