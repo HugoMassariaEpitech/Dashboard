@@ -35,7 +35,6 @@ setInterval(function() {
 
 function getISSPosition() {
     $.ajax({type:"GET", url:"http://localhost:9090/api/ISS", data:"", dataType: "json", success: function(data) {
-        console.log([data.iss_position.longitude, data.iss_position.latitude]);
         map.setCenter([data.iss_position.longitude, data.iss_position.latitude]);
         const el = document.createElement('div');
         el.className = 'marker';
