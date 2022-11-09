@@ -47,13 +47,19 @@ function getUserData() {
                     // Add widget to the navbar
                     for (const [key, value] of Object.entries(snapshot.val().widget)) {                        
                         for(const [key2, value2] of Object.entries(value)) {
+                            var params = {};
+                            for(const [key3, value3] of Object.entries(value2)) {
+                                params[key3] = value3;
+                            }
+
                             // The key2 equel the uid of the widget
                             addWidgetToNavbar(key, key2);
 
                             // Add widget to the dashboard
                             switch (key) {
                                 case "Jokes":
-                                    addJokesToDashboard(key2);
+                                    // Add jokes param to the param list
+                                    addJokesToDashboard(key2, params);
                                     break;
                                 case "News":
                                     addNewsToDashboard(key2);
@@ -118,26 +124,33 @@ function addWidgetToNavbar(type, uid) {
 // Passer l'url au fonction get, pour qu'elle sexecute et boom ça fonctionne
 
 document.addEventListener('click', function(el) {
-    console.log("Event trigger : " + el.target.id);
     if(el.target.id == "updateParam") {
+        // Get the uid of the widget
+        var uid0 = el.target.parentElement.parentElement.parentElement.id;
+        var uid1 = uid0.substring(0, uid0.length - 9)
+        var widgetType = el.target.parentElement.parentElement.parentElement.children[0].children[1].children[0].innerText;
         // var url = "http://localhost:9090/api/ChuckNorris";
         const updates = {};
         var params = el.target.parentElement.parentElement.children[0].children;
-        for (var i = 1; i < params.length; i++) {
+        var param = {};
+        for (var i = 0; i < params.length; i++) {
             var key = params[i].children[0].innerText;
             var value = params[i].children[1].children[0].value;
-            updates['/widget/Stocks/' + 'oui1/' + key] = value; 
+            param[key] = value;
+            updates['/widget/' + widgetType + '/' + uid1 + '/' + key] = value; 
         }
         update(ref(database, auth.currentUser.uid), updates);
 
-        // const updates = {};
-        // Create unique id
-        var uid = push(child(ref(database), 'posts')).key;
-        // Default refresh rate
-        updates['/widget/' + widgetType + '/' + uid + '/refreshRate'] = 60;
-        // The status is not necessary, since the widget is displayed base on the presence of the widget instance in the database
-        updates['/widget/' + widgetType + '/' + uid + '/status'] = true;
-        update(ref(database, auth.currentUser.uid), updates);
+        // Faire la requete avec les options et stocker le résultat sur Firebase
+        switch (widgetType) {
+            case 'Jokes':
+                console.log(param);
+                getJoke(param);
+                break;
+        
+            default:
+                break;
+        }
     }
 
     if(el.target.id == "addWidget") {
@@ -149,13 +162,20 @@ document.addEventListener('click', function(el) {
 
     if(el.target.id == "removeWidget") {
         // Caler le UID sur le widget pour pouvoir l'identifier
-        // console.log(el.target.parentElement.parentElement.parentElement.children[1].innerText);
-        // console.log(el.target.parentElement.parentElement.parentElement.children[1].id);
         var widgetType = el.target.parentElement.parentElement.parentElement.children[1].innerText;
         var widgetUidNavbar = el.target.parentElement.parentElement.parentElement.parentElement.id;
         var widgetUid = widgetUidNavbar.substring(0, widgetUidNavbar.length - 6);
         var widgetUidDashboard = widgetUidNavbar.substring(0, widgetUidNavbar.length - 6) + 'Dashboard';
 
+        // If last element, remove the widget from the DOM
+        var dashboard = document.getElementById('dashboardJokesNews');
+
+        console.log(dashboard.childElementCount);
+        if(dashboard.childElementCount == 1) {
+            dashboard.removeChild(dashboard.firstChild);
+            removeWidgetFromNavbar(widgetUidNavbar);
+        }
+        
         remove(ref(database, auth.currentUser.uid + '/widget/' + widgetType + '/' + widgetUid));
     }
 });
@@ -171,7 +191,7 @@ function saveWidgetToDatabase(widgetType) {
     update(ref(database, auth.currentUser.uid), updates);
 }
 
-function addJokesToDashboard(uid) {
+function addJokesToDashboard(uid, params) {
     var div1 = document.createElement('div');
     div1.setAttribute('id', uid + 'Dashboard');
     div1.className = 'w-full lg:w-1/2 p-4';
@@ -198,6 +218,8 @@ function addJokesToDashboard(uid) {
     div5.appendChild(h1);
     var p2 = document.createElement('p');
     p2.className = 'block text-xs text-gray-300 font-semibold mb-6';
+    p2.setAttribute('id', 'ChuckNorrisJoke');
+    p2.value = 'Awaiting Joke';
     div5.appendChild(p2);
     div3.appendChild(div5);
     div2.appendChild(div3);
@@ -230,6 +252,7 @@ function addJokesToDashboard(uid) {
     var input1 = document.createElement('input');
     input1.className = 'w-full px-6 leading-7 bg-white border-2 border-blue-400 rounded-3xl outline-none appearance-none stroke-none';
     input1.type = 'number';
+    input1.value = params['Refresh rate'];
     div12.appendChild(input1);
     div10.appendChild(div12);
     div9.appendChild(div10);
@@ -247,6 +270,7 @@ function addJokesToDashboard(uid) {
     var input2 = document.createElement('input');
     input2.className = 'w-full px-6 leading-7 bg-white border-2 border-blue-400 rounded-3xl outline-none';
     input2.type = 'text';
+    input2.value = params['Category'];
     div15.appendChild(input2);
     div13.appendChild(div15);
     div9.appendChild(div13);
@@ -369,7 +393,6 @@ function addMapToDashboard() {
 }
 
 function removeWidgetFromNavbar(uid) {
-    console.log(uid);
     document.getElementById(uid).remove();
 }
 
@@ -393,9 +416,14 @@ map.scrollZoom.disable();
 // setInterval(function() {
 //     getJoke();
 // }, 5000);
-function getJoke(url) {
-    $.ajax({type:"GET", url:"http://localhost:9090/api/ChuckNorris", data:"", dataType: "json", success: function(data) {
-        $("#ChuckNorrisJoke").html(data.value);
+function getJoke(param) {
+    console.log(param['Category']);
+    var url = param['Category'] == "" ? "http://localhost:9090/api/ChuckNorris" : `http://localhost:9090/api/ChuckNorris?category=${param['Category']}`;
+    console.log(url);
+    $.ajax({type:"GET", url:url, data:"", dataType: "json", success: function(data) {
+        console.log(data.value);
+        document.getElementById("ChuckNorrisJoke").innerText = data.value;
+        // $("#ChuckNorrisJoke").html(data.value);
     }, error: function(data) {
         // $(".Form").find(".FormMessage").html(data.responseJSON.message);
         console.log(data);
@@ -405,6 +433,7 @@ function getJoke(url) {
 setInterval(getNews(), 10000);
 
 function getNews() {
+    console.log('http://localhost:9090/api/News?param=us');
     $.ajax({type:"GET", url:"http://localhost:9090/api/News?param=us", data:"", dataType: "json", success: function(data) {
         $("#NewsTitle").html(data.articles[1].description);
         $("#NewsDescription").html(data.articles[1].content);
