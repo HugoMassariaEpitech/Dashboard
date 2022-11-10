@@ -63,6 +63,8 @@ function getUserData() {
                                 params[key3] = value3;
                             }
 
+                            console.log(params);
+
                             // The key2 equel the uid of the widget
                             addWidgetToNavbar(key, key2);
 
@@ -76,8 +78,9 @@ function getUserData() {
                                     addNewsToDashboard(key, key2, params);
                                     break;
                                 case "Stocks":
+                                    addStocksParamToDashboard(key, key2, params);
                                     addVolumeToDashboard(key, key2, params);
-                                    addMarketPriceToDashboard(key, key2, params);
+                                    // addMarketPriceToDashboard(key, key2, params);
                                     break;
                                 case "Map":
                                     addMapToDashboard(key, key2, params);
@@ -451,97 +454,61 @@ function addNewsToDashboard(widgetType, uid, params) {
 }
 
 function addVolumeToDashboard(widgetType, uid, param) {
+    var divStock = document.createElement('div');
+    divStock.className = 'flex flox-col';
+
     var divVol = document.createElement('div');
     divVol.className = 'w-full md:w-1/2 px-4 mb-8';
     var div1 = document.createElement('div');
     div1.className = 'text-center bg-dark_lighter rounded-xl pt-2 z-10 relative';
-    var span1 = document.createElement('span');
-    span1.className = 'flex justify-center items-center ml-auto bg-gray-600 hover:bg-blue-500 active:bg-blue-600 w-6 h-6 mr-2 text-xs rounded-full cursor-pointer';
-    span1.innerHTML = SVG['GEAR'];
-    div1.appendChild(span1);
     var h1 = document.createElement('h4');
     h1.className = 'block text-xs text-gray-300 font-semibold mb-2';
     h1.innerText = 'Volume';
     div1.appendChild(h1);
     var p1 = document.createElement('p');
     p1.className = 'text-4xl text-gray-100 font-bold mb-2';
-    p1.innerText = '0';
+    p1.innerText = param['apiReply']['volume'];
     div1.appendChild(p1);
+    var h2 = document.createElement('h2');
+    h2.className = 'block text-xs text-gray-300 font-semibold mb-2 pt-6';
+    h2.innerText = 'Evolution';
+    div1.appendChild(h2);
+    var div2 = document.createElement('div');
+    div2.className = '';
+    var span3 = document.createElement('span');
+    span3.className = 'text-xs text-gray-300 font-semibold mb-2'
+    span3.innerText = '2022/11/09 - 2022/11/08';
+    div2.appendChild(span3);
     var span2 = document.createElement('span');
     span2.className = 'inline-block py-1 px-2 mb-5 text-xs text-white bg-green-500 rounded-full';
     span2.innerText = '0%';
-    div1.appendChild(span2);
-
+    div2.appendChild(span2);
+    div1.appendChild(div2);
     divVol.appendChild(div1);
+    divStock.appendChild(divVol);
 
-    var div8 = document.createElement('div');
-    div8.className = 'relative bg-thirdary -mt-4 z-0 rounded-b-xl h-auto hidden';
-    var div9 = document.createElement('div');
-    div9.className = 'px-8 pt-8 pb-4';
-    var div10 = document.createElement('div');
-    div10.className = 'flex flex-wrap mb-6 items-center';
+
+    var divMarket = document.createElement('div');
+    divMarket.className = 'w-full md:w-1/2 px-4 mb-8';
     var div11 = document.createElement('div');
-    div11.className = 'w-full md:w-1/3 mb-2 md:mb-0 md:pr-10 md:text-right';
-    var label1 = document.createElement('label');
-    label1.className = 'text-lg text-white';
-    label1.innerText = 'Refresh rate';
-    div11.appendChild(label1);
-    div10.appendChild(div11);
-    var div12 = document.createElement('div');
-    div12.className = 'w-full md:w-2/3';
-    var input1 = document.createElement('input');
-    input1.className = 'w-full px-6 leading-7 bg-white border-2 border-blue-400 rounded-3xl outline-none appearance-none stroke-none';
-    input1.type = 'number';
-    div12.appendChild(input1);
-    div10.appendChild(div12);
-    div9.appendChild(div10);
-    var div13 = document.createElement('div');
-    div13.className = 'flex flex-wrap mb-6 items-center';
-    var div14 = document.createElement('div');
-    div14.className = 'w-full md:w-1/3 mb-2 md:mb-0 md:pr-10 md:text-right';
-    var label2 = document.createElement('label');
-    label2.className = 'text-lg text-white';
-    label2.innerText = 'Company';
-    div14.appendChild(label2);
-    div13.appendChild(div14);
-    var div15 = document.createElement('div');
-    div15.className = 'w-full md:w-2/3';
-    var input2 = document.createElement('input');
-    input2.className = 'w-full px-6 leading-7 bg-white border-2 border-blue-400 rounded-3xl outline-none';
-    input2.type = 'text';
-    div15.appendChild(input2);
-    div13.appendChild(div15);
-    div9.appendChild(div13);
-    var divCountry = document.createElement('div');
-    divCountry.className = 'flex flex-wrap items-center';
-    var divCountryText = document.createElement('div');
-    divCountryText.className = 'w-full md:w-1/3 mb-2 md:mb-0 md:pr-10 md:text-right';
-    var labelCountryText = document.createElement('label');
-    labelCountryText.className = 'text-lg text-white';
-    labelCountryText.innerText = 'Country';
-    divCountryText.appendChild(labelCountryText);
-    divCountry.appendChild(divCountryText);
-    var divCountryInput = document.createElement('div');
-    divCountryInput.className = 'w-full md:w-2/3';
-    var inputCountry = document.createElement('input');
-    inputCountry.className = 'w-full px-6 leading-7 bg-white border-2 border-blue-400 rounded-3xl outline-none';
-    inputCountry.type = 'text';
-    divCountryInput.appendChild(inputCountry);
-    divCountry.appendChild(divCountryInput);
-    div9.appendChild(divCountry);
-    div8.appendChild(div9);
-    var div16 = document.createElement('div');
-    div16.className = 'flex justify-end';
-    div16.setAttribute('id', widgetType);
-    var button1 = document.createElement('button');
-    button1.className = 'bg-blue-500 hover:bg-blue-700 active:bg-blue-800 text-white font-bold mb-6 mr-8 py-2 px-4 rounded-r-xl rounded-l-xl';
-    button1.id = 'updateParam';
-    button1.innerText = 'Update';
-    div16.appendChild(button1);
-    div8.appendChild(div16);
-    divVol.appendChild(div8);
+    div11.className = 'text-center bg-dark_lighter rounded-xl pt-2 z-10 relative';
+    var h11 = document.createElement('h4');
+    h11.className = 'block text-xs text-gray-300 font-semibold mb-2';
+    h11.innerText = 'Market Price';
+    div11.appendChild(h11);
+    var p2 = document.createElement('p');
+    p2.className = 'text-4xl text-gray-100 font-bold mb-2';
+    p2.innerText = '0';
+    div11.appendChild(p2);
+    var span4 = document.createElement('span');
+    span4.className = 'inline-block py-1 px-2 mb-5 text-xs text-white bg-green-500 rounded-full';
+    span4.innerText = '0%';
+    div11.appendChild(span4);
 
-    document.getElementById("stocks").appendChild(divVol);
+    divMarket.appendChild(div11);
+    divStock.appendChild(divMarket);
+
+    document.getElementById("stocks").appendChild(divStock);
 }
 
 function addMarketPriceToDashboard(widgetType, uid, param) {
@@ -568,74 +535,161 @@ function addMarketPriceToDashboard(widgetType, uid, param) {
 
     divVol.appendChild(div1);
 
+    document.getElementById("stocks").appendChild(divVol);
+}
+
+function addStocksParamToDashboard(widgetType, uid, param) {
+    var divStocks = document.createElement('div');
+    divStocks.className = 'w-full px-4 mb-8';
+    var div1 = document.createElement('div');
+    div1.className = 'text-center bg-dark_lighter rounded-xl pt-2 z-10 relative';
+    var span1 = document.createElement('span');
+    span1.className = 'flex justify-center items-center ml-auto bg-gray-600 hover:bg-blue-500 active:bg-blue-600 w-6 h-6 mr-2 text-xs rounded-full cursor-pointer';
+    span1.innerHTML = SVG['GEAR'];
+    div1.appendChild(span1);
+    var h1 = document.createElement('h4');
+    h1.className = 'block text-2xl text-gray-300 font-semibold pb-8';
+    h1.innerText = 'Stocks';
+    div1.appendChild(h1);
+    divStocks.appendChild(div1);
+
+    // Options
     var div8 = document.createElement('div');
     div8.className = 'relative bg-thirdary -mt-4 z-0 rounded-b-xl h-auto hidden';
     var div9 = document.createElement('div');
     div9.className = 'px-8 pt-8 pb-4';
+    
     var div10 = document.createElement('div');
-    div10.className = 'flex flex-wrap mb-6 items-center';
+    div10.className = 'flex flex-row mb-6';
     var div11 = document.createElement('div');
-    div11.className = 'w-full md:w-1/3 mb-2 md:mb-0 md:pr-10 md:text-right';
+    div11.className = 'w-1/2 flex flex-row items-center';
+    var div12 = document.createElement('div');
+    div12.className = 'w-full md:w-1/3 mb-2 md:mb-0 md:pr-10 md:text-right';
     var label1 = document.createElement('label');
     label1.className = 'text-lg text-white';
     label1.innerText = 'Refresh rate';
-    div11.appendChild(label1);
-    div10.appendChild(div11);
-    var div12 = document.createElement('div');
-    div12.className = 'w-full md:w-2/3';
+    div12.appendChild(label1);
+    div11.appendChild(div12);
+    var div13 = document.createElement('div');
+    div13.className = 'w-full md:w-2/3';
     var input1 = document.createElement('input');
     input1.className = 'w-full px-6 leading-7 bg-white border-2 border-blue-400 rounded-3xl outline-none appearance-none stroke-none';
     input1.type = 'number';
-    div12.appendChild(input1);
-    div10.appendChild(div12);
-    div9.appendChild(div10);
-    var div13 = document.createElement('div');
-    div13.className = 'flex flex-wrap mb-6 items-center';
-    var div14 = document.createElement('div');
-    div14.className = 'w-full md:w-1/3 mb-2 md:mb-0 md:pr-10 md:text-right';
+    div13.appendChild(input1);
+    div11.appendChild(div13);
+    div10.appendChild(div11);
+
+    var div21 = document.createElement('div');
+    div11.className = 'w-1/2 flex flex-row items-center';
+    var div22 = document.createElement('div');
+    div12.className = 'w-full md:w-1/3 mb-2 md:mb-0 md:pr-10 md:text-right';
     var label2 = document.createElement('label');
     label2.className = 'text-lg text-white';
-    label2.innerText = 'Company';
-    div14.appendChild(label2);
-    div13.appendChild(div14);
-    var div15 = document.createElement('div');
-    div15.className = 'w-full md:w-2/3';
+    label2.innerText = 'Refresh rate';
+    div22.appendChild(label2);
+    div21.appendChild(div22);
+    var div23 = document.createElement('div');
+    div23.className = 'w-full md:w-2/3';
     var input2 = document.createElement('input');
-    input2.className = 'w-full px-6 leading-7 bg-white border-2 border-blue-400 rounded-3xl outline-none';
-    input2.type = 'text';
-    div15.appendChild(input2);
-    div13.appendChild(div15);
-    div9.appendChild(div13);
-    var divCountry = document.createElement('div');
-    divCountry.className = 'flex flex-wrap items-center';
-    var divCountryText = document.createElement('div');
-    divCountryText.className = 'w-full md:w-1/3 mb-2 md:mb-0 md:pr-10 md:text-right';
-    var labelCountryText = document.createElement('label');
-    labelCountryText.className = 'text-lg text-white';
-    labelCountryText.innerText = 'Country';
-    divCountryText.appendChild(labelCountryText);
-    divCountry.appendChild(divCountryText);
-    var divCountryInput = document.createElement('div');
-    divCountryInput.className = 'w-full md:w-2/3';
-    var inputCountry = document.createElement('input');
-    inputCountry.className = 'w-full px-6 leading-7 bg-white border-2 border-blue-400 rounded-3xl outline-none';
-    inputCountry.type = 'text';
-    divCountryInput.appendChild(inputCountry);
-    divCountry.appendChild(divCountryInput);
-    div9.appendChild(divCountry);
-    div8.appendChild(div9);
-    var div16 = document.createElement('div');
-    div16.className = 'flex justify-end';
-    div16.setAttribute('id', widgetType);
-    var button1 = document.createElement('button');
-    button1.className = 'bg-blue-500 hover:bg-blue-700 active:bg-blue-800 text-white font-bold mb-6 mr-8 py-2 px-4 rounded-r-xl rounded-l-xl';
-    button1.id = 'updateParam';
-    button1.innerText = 'Update';
-    div16.appendChild(button1);
-    div8.appendChild(div16);
-    divVol.appendChild(div8);
+    input2.className = 'w-full px-6 leading-7 bg-white border-2 border-blue-400 rounded-3xl outline-none appearance-none stroke-none';
+    input2.type = 'number';
+    div23.appendChild(input2);
+    div21.appendChild(div23);
+    div10.appendChild(div21);
+    div9.appendChild(div10);
 
-    document.getElementById("stocks").appendChild(divVol);
+
+    var div30 = document.createElement('div');
+    div30.className = 'flex flex-row mb-6';
+
+    var div31 = document.createElement('div');
+    div31.className = 'w-1/2 flex flex-row items-center';
+    var div32 = document.createElement('div');
+    div32.className = 'w-full md:w-1/3 mb-2 md:mb-0 md:pr-10 md:text-right';
+    var label3 = document.createElement('label');
+    label3.className = 'text-lg text-white';
+    label3.innerText = 'Refresh rate';
+    div32.appendChild(label1);
+    div31.appendChild(div12);
+    var div33 = document.createElement('div');
+    div33.className = 'w-full md:w-2/3';
+    var input3 = document.createElement('input');
+    input3.className = 'w-full px-6 leading-7 bg-white border-2 border-blue-400 rounded-3xl outline-none appearance-none stroke-none';
+    input3.type = 'number';
+    div33.appendChild(input3);
+    div31.appendChild(div33);
+    div30.appendChild(div31);
+
+    var div41 = document.createElement('div');
+    div41.className = 'w-1/2 flex flex-row items-center';
+    var div42 = document.createElement('div');
+    div42.className = 'w-full md:w-1/3 mb-2 md:mb-0 md:pr-10 md:text-right';
+    var labe42 = document.createElement('label');
+    labe42.className = 'text-lg text-white';
+    labe42.innerText = 'Refresh rate';
+    div42.appendChild(label2);
+    div41.appendChild(div22);
+    var div43 = document.createElement('div');
+    div43.className = 'w-full md:w-2/3';
+    var input4 = document.createElement('input');
+    input4.className = 'w-full px-6 leading-7 bg-white border-2 border-blue-400 rounded-3xl outline-none appearance-none stroke-none';
+    input4.type = 'number';
+    div43.appendChild(input4);
+    div41.appendChild(div43);
+    div30.appendChild(div41);
+    div9.appendChild(div30);
+    div8.appendChild(div9);
+    divStocks.appendChild(div8);
+    
+
+    document.getElementById("stocks").appendChild(divStocks);
+
+
+    //     <div class="relative bg-thirdary -mt-4 z-0 rounded-b-xl h-auto hidden mr-4">
+    //         <div class="px-8 pt-8 pb-4">
+    //             <div class="flex flex-row mb-6">
+    //                 <div class="w-1/2 flex flex-row items-center">
+    //                     <div class="w-full md:w-1/3 mb-2 md:mb-0 md:pr-10 md:text-right">
+    //                         <label class="text-lg text-white">Refresh rate:</label>
+    //                     </div>
+    //                     <div class="w-full md:w-2/3">
+    //                         <input class="w-full px-6 leading-7 bg-white border-2 border-blue-400 rounded-3xl outline-none appearance-none stroke-none" type="number">
+    //                     </div>
+    //                 </div>
+
+    //                 <div class="w-1/2 flex flex-row items-center">
+    //                     <div class="w-full md:w-1/3 mb-2 md:mb-0 md:pr-10 md:text-right">
+    //                     <label class="text-lg text-white">Company:</label>
+    //                     </div>
+    //                     <div class="w-full md:w-2/3">
+    //                     <input class="w-full px-6 leading-7 bg-white border-2 border-blue-400 rounded-3xl outline-none" type="text">
+    //                     </div>
+    //                 </div>
+    //             </div>
+
+    //             <div class="flex flex-row">
+    //                 <div class="w-1/2 flex flex-row items-center">
+    //                     <div class="w-full md:w-1/3 mb-2 md:mb-0 md:pr-10 md:text-right">
+    //                     <label class="text-lg text-white">first day:</label>
+    //                     </div>
+    //                     <div class="w-full md:w-2/3">
+    //                     <input class="w-full px-6 leading-7 bg-white border-2 border-blue-400 rounded-3xl outline-none" type="text">
+    //                     </div>
+    //                 </div>
+
+    //                 <div class="w-1/2 flex flex-row items-center">
+    //                     <div class="w-full md:w-1/3 mb-2 md:mb-0 md:pr-10 md:text-right">
+    //                     <label class="text-lg text-white">last day:</label>
+    //                     </div>
+    //                     <div class="w-full md:w-2/3">
+    //                     <input class="w-full px-6 leading-7 bg-white border-2 border-blue-400 rounded-3xl outline-none" type="text">
+    //                     </div>
+    //                 </div>
+    //             </div>
+
+    //         </div>
+    //     </div>
+    // </div>
 }
 
 function addMapToDashboard(widgetType, uid, param) {
@@ -798,12 +852,35 @@ async function getNews(param) {
 async function getStocks(param) {
     // var url = param == undefined || param['Category'] == "" ? "http://localhost:9090/api/Stocks" : `http://localhost:9090/api/Stocks?category=${param['Category']}`;
     const result = await $.ajax({type:"GET", url:"http://localhost:9090/api/Stocks", data:"", dataType: "json"});
-    var rs = result['Time Series (15min)'];
-    for(key in rs) {
-        rs = rs[key];
-        break; // Stop the loop at the first key
+    var timeSeries = result['Time Series (Daily)'];
+    var sanitizedTimeSeries = {
+        'firstDay': {},
+        'lastDay': {}
+    };
+
+    for (let i = 0; i < 2; i++) {
+        sanitizedTimeSeries[Object.keys(sanitizedTimeSeries)[i]] = Object.values(timeSeries)[i]; // Ici mettre les valeurs de la journée
+        console.log(Object.keys(timeSeries)[i]);
     }
-    return rs;
+
+
+    for(const[key, value] of Object.entries(sanitizedTimeSeries)) {
+        for(const[key2, value2] of Object.entries(value)) {
+            var keyLength = 0;
+            for(const[key3, value3] of Object.entries(key2)) {
+                keyLength++;
+            }
+            var newKeyName = key2.substring(3, keyLength);
+            sanitizedTimeSeries[key][newKeyName] = sanitizedTimeSeries[key][key2];
+            delete sanitizedTimeSeries[key][key2]
+        } 
+    }
+
+    for (let i = 0; i < 2; i++) {
+        sanitizedTimeSeries[Object.keys(sanitizedTimeSeries)[i]]['date'] = Object.keys(timeSeries)[i]; // Ici mettre la date de la journée
+    }
+
+    return sanitizedTimeSeries;
 }
 
 // setInterval(function() {
