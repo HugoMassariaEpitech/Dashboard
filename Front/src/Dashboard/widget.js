@@ -38,15 +38,25 @@ function getUserData() {
             console.log('reset');
             // Delete all widgets Nav and Dashboard
             $("#widgetList").empty();
-            var dashboard = document.getElementById('dashboardJokesNews');
-            while(dashboard.firstChild) {
-                dashboard.removeChild(dashboard.firstChild);
+            var jokesNews = document.getElementById('dashboardJokesNews');
+            while(jokesNews.firstChild) {
+                jokesNews.removeChild(jokesNews.firstChild);
+            }
+            var stocks = document.getElementById('stocks');
+            while(stocks.firstChild) {
+                stocks.removeChild(stocks.firstChild);
+            }
+            // TODO : Adjust the margin
+            var maps = document.getElementById('maps');
+            while(maps.firstChild) {
+                maps.removeChild(maps.firstChild);
             }
             // Add all widgets Nav and Dashboard, base on database data
             for (const [key, value] of Object.entries(snapshot.val())) {
                 if (key == "widget") {
                     // Add widget to the navbar
-                    for (const [key, value] of Object.entries(snapshot.val().widget)) {                        
+                    for (const [key, value] of Object.entries(snapshot.val().widget)) {  
+                        console.log(key);                      
                         for(const [key2, value2] of Object.entries(value)) {
                             var params = {};
                             for(const [key3, value3] of Object.entries(value2)) {
@@ -60,19 +70,17 @@ function getUserData() {
                             switch (key) {
                                 case "Jokes":
                                     // Add jokes param to the param list
-                                    addJokesToDashboard(key2, params);
+                                    addJokesToDashboard(key, key2, params);
                                     break;
                                 case "News":
-                                    addNewsToDashboard(key2, params);
+                                    addNewsToDashboard(key, key2, params);
                                     break;
-                                case "Volume":
-                                    addVolumeToDashboard();
-                                    break;
-                                case "Price":
-                                    addPriceToDashboard();
+                                case "Stocks":
+                                    addVolumeToDashboard(key, key2, params);
+                                    addMarketPriceToDashboard(key, key2, params);
                                     break;
                                 case "Map":
-                                    addMapToDashboard();
+                                    addMapToDashboard(key, key2, params);
                                     break;
                             }
                         }
@@ -125,11 +133,20 @@ function addWidgetToNavbar(type, uid) {
 // Passer l'url au fonction get, pour qu'elle sexecute et boom ça fonctionne
 
 document.addEventListener('click', async function(el) {
+    if(el.target.id == "gear") {
+        if(el.target.parentElement.parentElement.parentElement.children[1].classList.contains("hidden")) {  
+            el.target.parentElement.parentElement.parentElement.children[1].classList.remove("hidden");
+        } else {
+            el.target.parentElement.parentElement.parentElement.children[1].classList.add('hidden');
+        }
+    }
+
+
     if(el.target.id == "updateParam") {
         // Get the uid of the widget
         var uid0 = el.target.parentElement.parentElement.parentElement.id;
         var uid1 = uid0.substring(0, uid0.length - 9)
-        var widgetType = el.target.parentElement.parentElement.parentElement.children[0].children[1].children[0].innerText;
+        var widgetType = el.target.parentElement.id;
         // var url = "http://localhost:9090/api/ChuckNorris";
         const updates = {};
         var params = el.target.parentElement.parentElement.children[0].children;
@@ -153,6 +170,7 @@ document.addEventListener('click', async function(el) {
     if(el.target.id == "addWidget") {
         // TODO: La détection de l'input est pas top
         var widgetType = el.target.parentElement.parentElement.children[1].innerText;
+        console.log(widgetType);
 
         const updates = {};
         // Create unique id
@@ -161,8 +179,10 @@ document.addEventListener('click', async function(el) {
         updates['/widget/' + widgetType + '/' + uid + '/refreshRate'] = 60;
         // The status is not necessary, since the widget is displayed base on the presence of the widget instance in the database
         var apiReply = await apiCall(widgetType, param = undefined);
+
         console.log(apiReply);
         updates['/widget/' + widgetType + '/' + uid + '/apiReply'] = apiReply;
+        console.log(updates);
         update(ref(database, auth.currentUser.uid), updates);
         // saveWidgetToDatabase(widgetType);
     }
@@ -199,14 +219,8 @@ function apiCall(widgetType, param) {
         case 'Stocks':
             apiReply = getStocks(param);
             break;
-        case 'Volume':
-            apiReply = getVolume(param);
-            break;
-        case 'Price':
-            apiReply = getPrice(param);
-            break;
         case 'Map':
-            apiReply = getMap(param);
+            // apiReply = getMap(param);
             break;
         default:
             break;
@@ -226,7 +240,7 @@ function saveWidgetToDatabase(widgetType) {
     update(ref(database, auth.currentUser.uid), updates);
 }
 
-function addJokesToDashboard(uid, params) {
+function addJokesToDashboard(widgetType, uid, params) {
     var div1 = document.createElement('div');
     div1.setAttribute('id', uid + 'Dashboard');
     div1.className = 'w-full lg:w-1/2 p-4';
@@ -312,6 +326,7 @@ function addJokesToDashboard(uid, params) {
     div8.appendChild(div9);
     var div16 = document.createElement('div');
     div16.className = 'flex justify-end';
+    div16.setAttribute('id', widgetType);
     var button1 = document.createElement('button');
     button1.className = 'bg-blue-500 hover:bg-blue-700 active:bg-blue-800 text-white font-bold mb-6 mr-8 py-2 px-4 rounded-r-xl rounded-l-xl';
     button1.id = 'updateParam';
@@ -323,7 +338,7 @@ function addJokesToDashboard(uid, params) {
     document.getElementById("dashboardJokesNews").appendChild(div1);
 }
 
-function addNewsToDashboard(uid, params) {
+function addNewsToDashboard(widgetType, uid, params) {
     var div1 = document.createElement('div');
     div1.setAttribute('id', uid + 'Dashboard');
     div1.className = 'w-full lg:w-1/2 p-4';
@@ -423,6 +438,7 @@ function addNewsToDashboard(uid, params) {
     div8.appendChild(div9);
     var div16 = document.createElement('div');
     div16.className = 'flex justify-end';
+    div16.setAttribute('id', widgetType);
     var button1 = document.createElement('button');
     button1.className = 'bg-blue-500 hover:bg-blue-700 active:bg-blue-800 text-white font-bold mb-6 mr-8 py-2 px-4 rounded-r-xl rounded-l-xl';
     button1.id = 'updateParam';
@@ -434,16 +450,287 @@ function addNewsToDashboard(uid, params) {
     document.getElementById("dashboardJokesNews").appendChild(div1);
 }
 
-function addStocksToDashboard() {
+function addVolumeToDashboard(widgetType, uid, param) {
+    var divVol = document.createElement('div');
+    divVol.className = 'w-full md:w-1/2 px-4 mb-8';
+    var div1 = document.createElement('div');
+    div1.className = 'text-center bg-dark_lighter rounded-xl pt-2 z-10 relative';
+    var span1 = document.createElement('span');
+    span1.className = 'flex justify-center items-center ml-auto bg-gray-600 hover:bg-blue-500 active:bg-blue-600 w-6 h-6 mr-2 text-xs rounded-full cursor-pointer';
+    span1.innerHTML = SVG['GEAR'];
+    div1.appendChild(span1);
+    var h1 = document.createElement('h4');
+    h1.className = 'block text-xs text-gray-300 font-semibold mb-2';
+    h1.innerText = 'Volume';
+    div1.appendChild(h1);
+    var p1 = document.createElement('p');
+    p1.className = 'text-4xl text-gray-100 font-bold mb-2';
+    p1.innerText = '0';
+    div1.appendChild(p1);
+    var span2 = document.createElement('span');
+    span2.className = 'inline-block py-1 px-2 mb-5 text-xs text-white bg-green-500 rounded-full';
+    span2.innerText = '0%';
+    div1.appendChild(span2);
+
+    divVol.appendChild(div1);
+
+    var div8 = document.createElement('div');
+    div8.className = 'relative bg-thirdary -mt-4 z-0 rounded-b-xl h-auto hidden';
+    var div9 = document.createElement('div');
+    div9.className = 'px-8 pt-8 pb-4';
+    var div10 = document.createElement('div');
+    div10.className = 'flex flex-wrap mb-6 items-center';
+    var div11 = document.createElement('div');
+    div11.className = 'w-full md:w-1/3 mb-2 md:mb-0 md:pr-10 md:text-right';
+    var label1 = document.createElement('label');
+    label1.className = 'text-lg text-white';
+    label1.innerText = 'Refresh rate';
+    div11.appendChild(label1);
+    div10.appendChild(div11);
+    var div12 = document.createElement('div');
+    div12.className = 'w-full md:w-2/3';
+    var input1 = document.createElement('input');
+    input1.className = 'w-full px-6 leading-7 bg-white border-2 border-blue-400 rounded-3xl outline-none appearance-none stroke-none';
+    input1.type = 'number';
+    div12.appendChild(input1);
+    div10.appendChild(div12);
+    div9.appendChild(div10);
+    var div13 = document.createElement('div');
+    div13.className = 'flex flex-wrap mb-6 items-center';
+    var div14 = document.createElement('div');
+    div14.className = 'w-full md:w-1/3 mb-2 md:mb-0 md:pr-10 md:text-right';
+    var label2 = document.createElement('label');
+    label2.className = 'text-lg text-white';
+    label2.innerText = 'Company';
+    div14.appendChild(label2);
+    div13.appendChild(div14);
+    var div15 = document.createElement('div');
+    div15.className = 'w-full md:w-2/3';
+    var input2 = document.createElement('input');
+    input2.className = 'w-full px-6 leading-7 bg-white border-2 border-blue-400 rounded-3xl outline-none';
+    input2.type = 'text';
+    div15.appendChild(input2);
+    div13.appendChild(div15);
+    div9.appendChild(div13);
+    var divCountry = document.createElement('div');
+    divCountry.className = 'flex flex-wrap items-center';
+    var divCountryText = document.createElement('div');
+    divCountryText.className = 'w-full md:w-1/3 mb-2 md:mb-0 md:pr-10 md:text-right';
+    var labelCountryText = document.createElement('label');
+    labelCountryText.className = 'text-lg text-white';
+    labelCountryText.innerText = 'Country';
+    divCountryText.appendChild(labelCountryText);
+    divCountry.appendChild(divCountryText);
+    var divCountryInput = document.createElement('div');
+    divCountryInput.className = 'w-full md:w-2/3';
+    var inputCountry = document.createElement('input');
+    inputCountry.className = 'w-full px-6 leading-7 bg-white border-2 border-blue-400 rounded-3xl outline-none';
+    inputCountry.type = 'text';
+    divCountryInput.appendChild(inputCountry);
+    divCountry.appendChild(divCountryInput);
+    div9.appendChild(divCountry);
+    div8.appendChild(div9);
+    var div16 = document.createElement('div');
+    div16.className = 'flex justify-end';
+    div16.setAttribute('id', widgetType);
+    var button1 = document.createElement('button');
+    button1.className = 'bg-blue-500 hover:bg-blue-700 active:bg-blue-800 text-white font-bold mb-6 mr-8 py-2 px-4 rounded-r-xl rounded-l-xl';
+    button1.id = 'updateParam';
+    button1.innerText = 'Update';
+    div16.appendChild(button1);
+    div8.appendChild(div16);
+    divVol.appendChild(div8);
+
+    document.getElementById("stocks").appendChild(divVol);
 }
 
-function addVolumeToDashboard() {
+function addMarketPriceToDashboard(widgetType, uid, param) {
+    var divVol = document.createElement('div');
+    divVol.className = 'w-full md:w-1/2 px-4 mb-8';
+    var div1 = document.createElement('div');
+    div1.className = 'text-center bg-dark_lighter rounded-xl pt-2 z-10 relative';
+    var span1 = document.createElement('span');
+    span1.className = 'flex justify-center items-center ml-auto bg-gray-600 hover:bg-blue-500 active:bg-blue-600 w-6 h-6 mr-2 text-xs rounded-full cursor-pointer';
+    span1.innerHTML = SVG['GEAR'];
+    div1.appendChild(span1);
+    var h1 = document.createElement('h4');
+    h1.className = 'block text-xs text-gray-300 font-semibold mb-2';
+    h1.innerText = 'Market Price';
+    div1.appendChild(h1);
+    var p1 = document.createElement('p');
+    p1.className = 'text-4xl text-gray-100 font-bold mb-2';
+    p1.innerText = '0';
+    div1.appendChild(p1);
+    var span2 = document.createElement('span');
+    span2.className = 'inline-block py-1 px-2 mb-5 text-xs text-white bg-green-500 rounded-full';
+    span2.innerText = '0%';
+    div1.appendChild(span2);
+
+    divVol.appendChild(div1);
+
+    var div8 = document.createElement('div');
+    div8.className = 'relative bg-thirdary -mt-4 z-0 rounded-b-xl h-auto hidden';
+    var div9 = document.createElement('div');
+    div9.className = 'px-8 pt-8 pb-4';
+    var div10 = document.createElement('div');
+    div10.className = 'flex flex-wrap mb-6 items-center';
+    var div11 = document.createElement('div');
+    div11.className = 'w-full md:w-1/3 mb-2 md:mb-0 md:pr-10 md:text-right';
+    var label1 = document.createElement('label');
+    label1.className = 'text-lg text-white';
+    label1.innerText = 'Refresh rate';
+    div11.appendChild(label1);
+    div10.appendChild(div11);
+    var div12 = document.createElement('div');
+    div12.className = 'w-full md:w-2/3';
+    var input1 = document.createElement('input');
+    input1.className = 'w-full px-6 leading-7 bg-white border-2 border-blue-400 rounded-3xl outline-none appearance-none stroke-none';
+    input1.type = 'number';
+    div12.appendChild(input1);
+    div10.appendChild(div12);
+    div9.appendChild(div10);
+    var div13 = document.createElement('div');
+    div13.className = 'flex flex-wrap mb-6 items-center';
+    var div14 = document.createElement('div');
+    div14.className = 'w-full md:w-1/3 mb-2 md:mb-0 md:pr-10 md:text-right';
+    var label2 = document.createElement('label');
+    label2.className = 'text-lg text-white';
+    label2.innerText = 'Company';
+    div14.appendChild(label2);
+    div13.appendChild(div14);
+    var div15 = document.createElement('div');
+    div15.className = 'w-full md:w-2/3';
+    var input2 = document.createElement('input');
+    input2.className = 'w-full px-6 leading-7 bg-white border-2 border-blue-400 rounded-3xl outline-none';
+    input2.type = 'text';
+    div15.appendChild(input2);
+    div13.appendChild(div15);
+    div9.appendChild(div13);
+    var divCountry = document.createElement('div');
+    divCountry.className = 'flex flex-wrap items-center';
+    var divCountryText = document.createElement('div');
+    divCountryText.className = 'w-full md:w-1/3 mb-2 md:mb-0 md:pr-10 md:text-right';
+    var labelCountryText = document.createElement('label');
+    labelCountryText.className = 'text-lg text-white';
+    labelCountryText.innerText = 'Country';
+    divCountryText.appendChild(labelCountryText);
+    divCountry.appendChild(divCountryText);
+    var divCountryInput = document.createElement('div');
+    divCountryInput.className = 'w-full md:w-2/3';
+    var inputCountry = document.createElement('input');
+    inputCountry.className = 'w-full px-6 leading-7 bg-white border-2 border-blue-400 rounded-3xl outline-none';
+    inputCountry.type = 'text';
+    divCountryInput.appendChild(inputCountry);
+    divCountry.appendChild(divCountryInput);
+    div9.appendChild(divCountry);
+    div8.appendChild(div9);
+    var div16 = document.createElement('div');
+    div16.className = 'flex justify-end';
+    div16.setAttribute('id', widgetType);
+    var button1 = document.createElement('button');
+    button1.className = 'bg-blue-500 hover:bg-blue-700 active:bg-blue-800 text-white font-bold mb-6 mr-8 py-2 px-4 rounded-r-xl rounded-l-xl';
+    button1.id = 'updateParam';
+    button1.innerText = 'Update';
+    div16.appendChild(button1);
+    div8.appendChild(div16);
+    divVol.appendChild(div8);
+
+    document.getElementById("stocks").appendChild(divVol);
 }
 
-function addPriceToDashboard() {
-}
+function addMapToDashboard(widgetType, uid, param) {
+    var divMap = document.createElement('div');
+    divMap.className = 'container px-4 mx-auto h-96';
+    var divMap1 = document.createElement('div');
+    divMap1.className = 'flex flex-wrap items-center';
+    var divMap2 = document.createElement('div');
+    divMap2.className = 'w-full md:w-2/3 px-4 mb-8 h-96';
+    var divMap3 = document.createElement('div');
+    divMap3.className = 'text-center bg-dark_lighter rounded-xl h-96';
+    var divMap4 = document.createElement('div');
+    divMap4.className = 'h-96 rounded-xl';
+    divMap4.setAttribute('id', 'map');
+    divMap3.appendChild(divMap4);
+    divMap2.appendChild(divMap3);
+    divMap1.appendChild(divMap2);
 
-function addMapToDashboard() {
+    var divMap5 = document.createElement('div');
+    divMap5.className = 'w-full md:w-1/3 px-4 mb-8';
+    var divMap6 = document.createElement('div');
+    divMap6.className = 'pt-6 text-center bg-dark_lighter rounded-xl h-96';
+    divMap5.appendChild(divMap6);
+    divMap1.appendChild(divMap5);
+
+    var div8 = document.createElement('div');
+    div8.className = 'relative bg-thirdary -mt-4 z-0 rounded-b-xl h-auto hidden';
+    var div9 = document.createElement('div');
+    div9.className = 'px-8 pt-8 pb-4';
+    var div10 = document.createElement('div');
+    div10.className = 'flex flex-wrap mb-6 items-center';
+    var div11 = document.createElement('div');
+    div11.className = 'w-full md:w-1/3 mb-2 md:mb-0 md:pr-10 md:text-right';
+    var label1 = document.createElement('label');
+    label1.className = 'text-lg text-white';
+    label1.innerText = 'Refresh rate';
+    div11.appendChild(label1);
+    div10.appendChild(div11);
+    var div12 = document.createElement('div');
+    div12.className = 'w-full md:w-2/3';
+    var input1 = document.createElement('input');
+    input1.className = 'w-full px-6 leading-7 bg-white border-2 border-blue-400 rounded-3xl outline-none appearance-none stroke-none';
+    input1.type = 'number';
+    div12.appendChild(input1);
+    div10.appendChild(div12);
+    div9.appendChild(div10);
+    var div13 = document.createElement('div');
+    div13.className = 'flex flex-wrap mb-6 items-center';
+    var div14 = document.createElement('div');
+    div14.className = 'w-full md:w-1/3 mb-2 md:mb-0 md:pr-10 md:text-right';
+    var label2 = document.createElement('label');
+    label2.className = 'text-lg text-white';
+    label2.innerText = 'Company';
+    div14.appendChild(label2);
+    div13.appendChild(div14);
+    var div15 = document.createElement('div');
+    div15.className = 'w-full md:w-2/3';
+    var input2 = document.createElement('input');
+    input2.className = 'w-full px-6 leading-7 bg-white border-2 border-blue-400 rounded-3xl outline-none';
+    input2.type = 'text';
+    div15.appendChild(input2);
+    div13.appendChild(div15);
+    div9.appendChild(div13);
+    var divCountry = document.createElement('div');
+    divCountry.className = 'flex flex-wrap items-center';
+    var divCountryText = document.createElement('div');
+    divCountryText.className = 'w-full md:w-1/3 mb-2 md:mb-0 md:pr-10 md:text-right';
+    var labelCountryText = document.createElement('label');
+    labelCountryText.className = 'text-lg text-white';
+    labelCountryText.innerText = 'Country';
+    divCountryText.appendChild(labelCountryText);
+    divCountry.appendChild(divCountryText);
+    var divCountryInput = document.createElement('div');
+    divCountryInput.className = 'w-full md:w-2/3';
+    var inputCountry = document.createElement('input');
+    inputCountry.className = 'w-full px-6 leading-7 bg-white border-2 border-blue-400 rounded-3xl outline-none';
+    inputCountry.type = 'text';
+    divCountryInput.appendChild(inputCountry);
+    divCountry.appendChild(divCountryInput);
+    div9.appendChild(divCountry);
+    div8.appendChild(div9);
+    var div16 = document.createElement('div');
+    div16.className = 'flex justify-end';
+    div16.setAttribute('id', widgetType);
+    var button1 = document.createElement('button');
+    button1.className = 'bg-blue-500 hover:bg-blue-700 active:bg-blue-800 text-white font-bold mb-6 mr-8 py-2 px-4 rounded-r-xl rounded-l-xl';
+    button1.id = 'updateParam';
+    button1.innerText = 'Update';
+    div16.appendChild(button1);
+    div8.appendChild(div16);
+    divVol.appendChild(div8);
+
+    divMap.appendChild(divMap1);
+
+    document.getElementById('maps').appendChild(divMap);
 }
 
 function removeWidgetFromNavbar(uid) {
@@ -455,16 +742,16 @@ function removeWidgetFromDashboard(uid) {
 }
 
 
-mapboxgl.accessToken = 'pk.eyJ1IjoibWlzdGVyaG0iLCJhIjoiY2tvc2k2NzdtMDFwYzJwcng4aDRraWczeiJ9.OlrnunjFsM20lBB73JTmig';
-var map = new mapboxgl.Map({
-    container: 'map',
-    style: 'mapbox://styles/misterhm/cl9zevzwf00hi14p04xqrrb96',
-    attributionControl: false,
-    zoom: 0.5,
-    dragPan: false,
-    center: [51.160, 6.630]
-});
-map.scrollZoom.disable();
+// mapboxgl.accessToken = 'pk.eyJ1IjoibWlzdGVyaG0iLCJhIjoiY2tvc2k2NzdtMDFwYzJwcng4aDRraWczeiJ9.OlrnunjFsM20lBB73JTmig';
+// var map = new mapboxgl.Map({
+//     container: 'map',
+//     style: 'mapbox://styles/misterhm/cl9zevzwf00hi14p04xqrrb96',
+//     attributionControl: false,
+//     zoom: 0.5,
+//     dragPan: false,
+//     center: [51.160, 6.630]
+// });
+// map.scrollZoom.disable();
 
 
 // setInterval(function() {
@@ -480,6 +767,7 @@ async function getJoke(param) {
 // setInterval(getNews(), 10000);
 
 async function getNews(param) {
+    console.log(param);
     var url = "http://localhost:9090/api/News";
     if (param != undefined) {
         if (param['Country'] != undefined && param['Country'] != "") {
@@ -507,6 +795,17 @@ async function getNews(param) {
     // }});
 }
 
+async function getStocks(param) {
+    // var url = param == undefined || param['Category'] == "" ? "http://localhost:9090/api/Stocks" : `http://localhost:9090/api/Stocks?category=${param['Category']}`;
+    const result = await $.ajax({type:"GET", url:"http://localhost:9090/api/Stocks", data:"", dataType: "json"});
+    var rs = result['Time Series (15min)'];
+    for(key in rs) {
+        rs = rs[key];
+        break; // Stop the loop at the first key
+    }
+    return rs;
+}
+
 // setInterval(function() {
 //     getISSPosition();
 // }, 1000);
@@ -521,14 +820,3 @@ async function getNews(param) {
 //         $(".Form").find(".FormMessage").html(data.responseJSON.message);
 //     }});
 // }
-
-
-document.addEventListener('click', function(el) {
-    if(el.target.id == "gear") {
-        if(el.target.parentElement.parentElement.parentElement.children[1].classList.contains("hidden")) {  
-            el.target.parentElement.parentElement.parentElement.children[1].classList.remove("hidden");
-        } else {
-            el.target.parentElement.parentElement.parentElement.children[1].classList.add('hidden');
-        }
-    }
-});
