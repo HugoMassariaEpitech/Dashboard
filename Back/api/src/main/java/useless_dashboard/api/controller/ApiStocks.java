@@ -18,7 +18,9 @@ public class ApiStocks {
     @GetMapping
     public ResponseEntity<?> getStocks() throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
-		.uri(URI.create("https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY_EXTENDED&symbol=TSLA&interval=15min&slice=year1month1&apikey=EOSDO58H9WPBPZIO"))
+		.uri(URI.create("https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=TSLA&interval=15min&datatype=json&outputsize=compact&apikey=EOSDO58H9WPBPZIO"))
+		// https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol=TSLA&datatype=json&apikey=EOSDO58H9WPBPZIO
+		// https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=TSLA&interval=15&datatype=json&outputsize=compact&apikey=EOSDO58H9WPBPZIO
 		.header("accept", "application/json")
 		.method("GET", HttpRequest.BodyPublishers.noBody())
 		.build();
