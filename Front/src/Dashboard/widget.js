@@ -30,6 +30,7 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
+// TODO: Caller dans l'écran à cote de la map, des infos scinces, en param le pays
 // Get user data
 
 function getUserData() {
@@ -84,6 +85,7 @@ function getUserData() {
                                     break;
                                 case "Map":
                                     addMapToDashboard(key, key2, params);
+                                    // addMapboxOnMap(key, key2, params);
                                     break;
                             }
                         }
@@ -150,23 +152,35 @@ document.addEventListener('click', async function(el) {
         var uid0 = el.target.parentElement.parentElement.parentElement.id;
         var uid1 = uid0.substring(0, uid0.length - 9)
         var widgetType = el.target.parentElement.id;
+        console.log("widgtType: " + widgetType);
         // var url = "http://localhost:9090/api/ChuckNorris";
         const updates = {};
+        // For stocks set a hard value of 4 params
+        // var params = 0;
+        // if(widgetType == "Stocks") {
+        //     params = 4;
+        // } else {
         var params = el.target.parentElement.parentElement.children[0].children;
+        // }
+        console.log(params.length);
         var param = {};
         for (var i = 0; i < params.length; i++) {
             var key = params[i].children[0].innerText;
+            console.log(key);
             var value = params[i].children[1].children[0].value;
             param[key] = value;
             updates['/widget/' + widgetType + '/' + uid1 + '/' + key] = value; 
         }
+
+        console.log(updates);
         update(ref(database, auth.currentUser.uid), updates);
 
         // Faire la requete avec les options et stocker le résultat sur Firebase
         var apiReply = await apiCall(widgetType, param);
+        console.log(apiReply);
 
         // Update the value in the database
-        updates['/widget/' + widgetType + '/' + uid1 + '/' + 'apiReply'] = apiReply.value; 
+        updates['/widget/' + widgetType + '/' + uid1 + '/' + 'apiReply'] = apiReply; 
         update(ref(database, auth.currentUser.uid), updates);
     }
 
@@ -187,7 +201,6 @@ document.addEventListener('click', async function(el) {
         updates['/widget/' + widgetType + '/' + uid + '/apiReply'] = apiReply;
         console.log(updates);
         update(ref(database, auth.currentUser.uid), updates);
-        // saveWidgetToDatabase(widgetType);
     }
 
     if(el.target.id == "removeWidget") {
@@ -223,24 +236,13 @@ function apiCall(widgetType, param) {
             apiReply = getStocks(param);
             break;
         case 'Map':
-            // apiReply = getMap(param);
+            apiReply = getSatellite(param);
             break;
         default:
             break;
     }
 
     return apiReply;
-}
-
-function saveWidgetToDatabase(widgetType) {
-    const updates = {};
-    // Create unique id
-    var uid = push(child(ref(database), 'posts')).key;
-    // Default refresh rate
-    updates['/widget/' + widgetType + '/' + uid + '/refreshRate'] = 60;
-    // The status is not necessary, since the widget is displayed base on the presence of the widget instance in the database
-    updates['/widget/' + widgetType + '/' + uid + '/status'] = true;
-    update(ref(database, auth.currentUser.uid), updates);
 }
 
 function addJokesToDashboard(widgetType, uid, params) {
@@ -439,6 +441,8 @@ function addNewsToDashboard(widgetType, uid, params) {
     divCountry.appendChild(divCountryInput);
     div9.appendChild(divCountry);
     div8.appendChild(div9);
+
+
     var div16 = document.createElement('div');
     div16.className = 'flex justify-end';
     div16.setAttribute('id', widgetType);
@@ -454,6 +458,8 @@ function addNewsToDashboard(widgetType, uid, params) {
 }
 
 function addVolumeToDashboard(widgetType, uid, param) {
+    var volumeDifference = param['apiReply']['firstDay']['volume']/param['apiReply']['lastDay']['volume'];
+    var marketDifference = param['apiReply']['firstDay']['close']/param['apiReply']['lastDay']['close'];
     var divStock = document.createElement('div');
     divStock.className = 'flex flox-col';
 
@@ -467,21 +473,22 @@ function addVolumeToDashboard(widgetType, uid, param) {
     div1.appendChild(h1);
     var p1 = document.createElement('p');
     p1.className = 'text-4xl text-gray-100 font-bold mb-2';
-    p1.innerText = param['apiReply']['volume'];
+    p1.innerText = param['apiReply']['firstDay']['volume'];
     div1.appendChild(p1);
-    var h2 = document.createElement('h2');
-    h2.className = 'block text-xs text-gray-300 font-semibold mb-2 pt-6';
-    h2.innerText = 'Evolution';
-    div1.appendChild(h2);
+    // var h2 = document.createElement('h2');
+    // h2.className = 'block text-xs text-gray-300 font-semibold mb-2 pt-6';
+    // h2.innerText = 'Evolution';
+    // div1.appendChild(h2);
     var div2 = document.createElement('div');
     div2.className = '';
-    var span3 = document.createElement('span');
-    span3.className = 'text-xs text-gray-300 font-semibold mb-2'
-    span3.innerText = '2022/11/09 - 2022/11/08';
-    div2.appendChild(span3);
+    // var span3 = document.createElement('span');
+    // span3.className = 'text-xs text-gray-300 font-semibold mb-2'
+    // span3.innerText = '2022/11/09 - 2022/11/08';
+    // div2.appendChild(span3);
     var span2 = document.createElement('span');
-    span2.className = 'inline-block py-1 px-2 mb-5 text-xs text-white bg-green-500 rounded-full';
-    span2.innerText = '0%';
+    span2.className = 'inline-block py-1 px-2 mb-5 text-xs text-white rounded-full';
+    span2.className += volumeDifference > 1 ? ' bg-green-500' : ' bg-red-500';
+    span2.innerText = Math.round(volumeDifference * 100) / 100 + '%' + ' ' + 'since yesterday';
     div2.appendChild(span2);
     div1.appendChild(div2);
     divVol.appendChild(div1);
@@ -498,11 +505,12 @@ function addVolumeToDashboard(widgetType, uid, param) {
     div11.appendChild(h11);
     var p2 = document.createElement('p');
     p2.className = 'text-4xl text-gray-100 font-bold mb-2';
-    p2.innerText = '0';
+    p2.innerText = param['apiReply']['firstDay']['close'] + ' ' + "$";
     div11.appendChild(p2);
     var span4 = document.createElement('span');
-    span4.className = 'inline-block py-1 px-2 mb-5 text-xs text-white bg-green-500 rounded-full';
-    span4.innerText = '0%';
+    span4.className = 'inline-block py-1 px-2 mb-5 text-xs text-white rounded-full';
+    span4.className += marketDifference > 1 ? ' bg-green-500' : ' bg-red-500';
+    span4.innerText = Math.round( marketDifference * 100) / 100 + '%';
     div11.appendChild(span4);
 
     divMarket.appendChild(div11);
@@ -538,8 +546,10 @@ function addMarketPriceToDashboard(widgetType, uid, param) {
     document.getElementById("stocks").appendChild(divVol);
 }
 
+// Display the two date on the stock banner left and right
 function addStocksParamToDashboard(widgetType, uid, param) {
     var divStocks = document.createElement('div');
+    divStocks.setAttribute('id', uid + 'Dashboard');
     divStocks.className = 'w-full px-4 mb-8';
     var div1 = document.createElement('div');
     div1.className = 'text-center bg-dark_lighter rounded-xl pt-2 z-10 relative';
@@ -557,10 +567,10 @@ function addStocksParamToDashboard(widgetType, uid, param) {
     var div8 = document.createElement('div');
     div8.className = 'relative bg-thirdary -mt-4 z-0 rounded-b-xl h-auto hidden';
     var div9 = document.createElement('div');
-    div9.className = 'px-8 pt-8 pb-4';
+    div9.className = 'px-8 pt-8 pb-4 flex flex-wrap';
     
-    var div10 = document.createElement('div');
-    div10.className = 'flex flex-row mb-6';
+    // var div10 = document.createElement('div');
+    // div10.className = 'flex flex-row mb-6';
     var div11 = document.createElement('div');
     div11.className = 'w-1/2 flex flex-row items-center';
     var div12 = document.createElement('div');
@@ -575,32 +585,34 @@ function addStocksParamToDashboard(widgetType, uid, param) {
     var input1 = document.createElement('input');
     input1.className = 'w-full px-6 leading-7 bg-white border-2 border-blue-400 rounded-3xl outline-none appearance-none stroke-none';
     input1.type = 'number';
+    input1.value = param['refreshRate'] != undefined ? param['refreshRate'] : 86400;
     div13.appendChild(input1);
     div11.appendChild(div13);
-    div10.appendChild(div11);
+    div9.appendChild(div11);
 
     var div21 = document.createElement('div');
-    div11.className = 'w-1/2 flex flex-row items-center';
+    div21.className = 'w-1/2 flex flex-row items-center';
     var div22 = document.createElement('div');
-    div12.className = 'w-full md:w-1/3 mb-2 md:mb-0 md:pr-10 md:text-right';
+    div22.className = 'w-full md:w-1/3 mb-2 md:mb-0 md:pr-10 md:text-right';
     var label2 = document.createElement('label');
     label2.className = 'text-lg text-white';
-    label2.innerText = 'Refresh rate';
+    label2.innerText = 'Company';
     div22.appendChild(label2);
     div21.appendChild(div22);
     var div23 = document.createElement('div');
     div23.className = 'w-full md:w-2/3';
     var input2 = document.createElement('input');
     input2.className = 'w-full px-6 leading-7 bg-white border-2 border-blue-400 rounded-3xl outline-none appearance-none stroke-none';
-    input2.type = 'number';
+    input2.type = 'text';
+    input2.value = param['Company'] != undefined ? param['Company'] : 'TSLA';
     div23.appendChild(input2);
     div21.appendChild(div23);
-    div10.appendChild(div21);
-    div9.appendChild(div10);
+    // div10.appendChild(div21);
+    div9.appendChild(div21);
 
 
-    var div30 = document.createElement('div');
-    div30.className = 'flex flex-row mb-6';
+    // var div30 = document.createElement('div');
+    // div30.className = 'flex flex-row mb-6';
 
     var div31 = document.createElement('div');
     div31.className = 'w-1/2 flex flex-row items-center';
@@ -608,93 +620,60 @@ function addStocksParamToDashboard(widgetType, uid, param) {
     div32.className = 'w-full md:w-1/3 mb-2 md:mb-0 md:pr-10 md:text-right';
     var label3 = document.createElement('label');
     label3.className = 'text-lg text-white';
-    label3.innerText = 'Refresh rate';
-    div32.appendChild(label1);
-    div31.appendChild(div12);
+    label3.innerText = 'First day';
+    div32.appendChild(label3);
+    div31.appendChild(div32);
     var div33 = document.createElement('div');
     div33.className = 'w-full md:w-2/3';
     var input3 = document.createElement('input');
     input3.className = 'w-full px-6 leading-7 bg-white border-2 border-blue-400 rounded-3xl outline-none appearance-none stroke-none';
-    input3.type = 'number';
+    input3.type = 'text';
+    input3.value = 'jesuis';
     div33.appendChild(input3);
     div31.appendChild(div33);
-    div30.appendChild(div31);
+    div9.appendChild(div31);
 
     var div41 = document.createElement('div');
     div41.className = 'w-1/2 flex flex-row items-center';
     var div42 = document.createElement('div');
     div42.className = 'w-full md:w-1/3 mb-2 md:mb-0 md:pr-10 md:text-right';
-    var labe42 = document.createElement('label');
-    labe42.className = 'text-lg text-white';
-    labe42.innerText = 'Refresh rate';
-    div42.appendChild(label2);
-    div41.appendChild(div22);
+    var label42 = document.createElement('label');
+    label42.className = 'text-lg text-white';
+    label42.innerText = 'Last day';
+    div42.appendChild(label42);
+    div41.appendChild(div42);
     var div43 = document.createElement('div');
     div43.className = 'w-full md:w-2/3';
     var input4 = document.createElement('input');
     input4.className = 'w-full px-6 leading-7 bg-white border-2 border-blue-400 rounded-3xl outline-none appearance-none stroke-none';
-    input4.type = 'number';
+    input4.type = 'text';
+    input4.value = '2021-01-01';
     div43.appendChild(input4);
     div41.appendChild(div43);
-    div30.appendChild(div41);
-    div9.appendChild(div30);
+    // div30.appendChild(div41);
+    div9.appendChild(div41);
     div8.appendChild(div9);
     divStocks.appendChild(div8);
+
+    var div16 = document.createElement('div');
+    div16.className = 'flex justify-end';
+    div16.setAttribute('id', widgetType);
+    var button1 = document.createElement('button');
+    button1.className = 'bg-blue-500 hover:bg-blue-700 active:bg-blue-800 text-white font-bold mb-6 mr-8 py-2 px-4 rounded-r-xl rounded-l-xl';
+    button1.id = 'updateParam';
+    button1.innerText = 'Update';
+    div16.appendChild(button1);
+    div8.appendChild(div16);
     
 
     document.getElementById("stocks").appendChild(divStocks);
 
-
-    //     <div class="relative bg-thirdary -mt-4 z-0 rounded-b-xl h-auto hidden mr-4">
-    //         <div class="px-8 pt-8 pb-4">
-    //             <div class="flex flex-row mb-6">
-    //                 <div class="w-1/2 flex flex-row items-center">
-    //                     <div class="w-full md:w-1/3 mb-2 md:mb-0 md:pr-10 md:text-right">
-    //                         <label class="text-lg text-white">Refresh rate:</label>
-    //                     </div>
-    //                     <div class="w-full md:w-2/3">
-    //                         <input class="w-full px-6 leading-7 bg-white border-2 border-blue-400 rounded-3xl outline-none appearance-none stroke-none" type="number">
-    //                     </div>
-    //                 </div>
-
-    //                 <div class="w-1/2 flex flex-row items-center">
-    //                     <div class="w-full md:w-1/3 mb-2 md:mb-0 md:pr-10 md:text-right">
-    //                     <label class="text-lg text-white">Company:</label>
-    //                     </div>
-    //                     <div class="w-full md:w-2/3">
-    //                     <input class="w-full px-6 leading-7 bg-white border-2 border-blue-400 rounded-3xl outline-none" type="text">
-    //                     </div>
-    //                 </div>
-    //             </div>
-
-    //             <div class="flex flex-row">
-    //                 <div class="w-1/2 flex flex-row items-center">
-    //                     <div class="w-full md:w-1/3 mb-2 md:mb-0 md:pr-10 md:text-right">
-    //                     <label class="text-lg text-white">first day:</label>
-    //                     </div>
-    //                     <div class="w-full md:w-2/3">
-    //                     <input class="w-full px-6 leading-7 bg-white border-2 border-blue-400 rounded-3xl outline-none" type="text">
-    //                     </div>
-    //                 </div>
-
-    //                 <div class="w-1/2 flex flex-row items-center">
-    //                     <div class="w-full md:w-1/3 mb-2 md:mb-0 md:pr-10 md:text-right">
-    //                     <label class="text-lg text-white">last day:</label>
-    //                     </div>
-    //                     <div class="w-full md:w-2/3">
-    //                     <input class="w-full px-6 leading-7 bg-white border-2 border-blue-400 rounded-3xl outline-none" type="text">
-    //                     </div>
-    //                 </div>
-    //             </div>
-
-    //         </div>
-    //     </div>
-    // </div>
 }
 
 function addMapToDashboard(widgetType, uid, param) {
     var divMap = document.createElement('div');
-    divMap.className = 'container px-4 mx-auto h-96';
+    divMap.className = 'container px-4 mx-auto h-96 mb-6';
+    divMap.setAttribute('id', uid + "Dashboard");
     var divMap1 = document.createElement('div');
     divMap1.className = 'flex flex-wrap items-center';
     var divMap2 = document.createElement('div');
@@ -703,7 +682,7 @@ function addMapToDashboard(widgetType, uid, param) {
     divMap3.className = 'text-center bg-dark_lighter rounded-xl h-96';
     var divMap4 = document.createElement('div');
     divMap4.className = 'h-96 rounded-xl';
-    divMap4.setAttribute('id', 'map');
+    divMap4.setAttribute('id', uid);
     divMap3.appendChild(divMap4);
     divMap2.appendChild(divMap3);
     divMap1.appendChild(divMap2);
@@ -780,9 +759,10 @@ function addMapToDashboard(widgetType, uid, param) {
     button1.innerText = 'Update';
     div16.appendChild(button1);
     div8.appendChild(div16);
-    divVol.appendChild(div8);
+    divMap.appendChild(div8);
 
     divMap.appendChild(divMap1);
+    console.log('dom' + uid);
 
     document.getElementById('maps').appendChild(divMap);
 }
@@ -795,17 +775,29 @@ function removeWidgetFromDashboard(uid) {
     document.getElementById(uid).remove();
 }
 
+// function addMapboxOnMap(uid) {
+//     console.log(object);
+//     mapboxgl.accessToken = 'pk.eyJ1IjoibWlzdGVyaG0iLCJhIjoiY2tvc2k2NzdtMDFwYzJwcng4aDRraWczeiJ9.OlrnunjFsM20lBB73JTmig';
+//     var map = new mapboxgl.Map({
+//         container: uid,
+//         style: 'mapbox://styles/mapbox/streets-v11',
+//         center: [-74.5, 40],
+//         zoom: 9
+//     });
+//     map.scrollZoom.disable();
+// }
 
-// mapboxgl.accessToken = 'pk.eyJ1IjoibWlzdGVyaG0iLCJhIjoiY2tvc2k2NzdtMDFwYzJwcng4aDRraWczeiJ9.OlrnunjFsM20lBB73JTmig';
-// var map = new mapboxgl.Map({
-//     container: 'map',
-//     style: 'mapbox://styles/misterhm/cl9zevzwf00hi14p04xqrrb96',
-//     attributionControl: false,
-//     zoom: 0.5,
-//     dragPan: false,
-//     center: [51.160, 6.630]
-// });
-// map.scrollZoom.disable();
+mapboxgl.accessToken = 'pk.eyJ1IjoibWlzdGVyaG0iLCJhIjoiY2tvc2k2NzdtMDFwYzJwcng4aDRraWczeiJ9.OlrnunjFsM20lBB73JTmig';
+var map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/misterhm/cl9zevzwf00hi14p04xqrrb96',
+    attributionControl: false,
+    zoom: 0.5,
+    dragPan: false,
+    center: [51.160, 6.630]
+});
+map.scrollZoom.disable();
+
 
 
 // setInterval(function() {
@@ -850,8 +842,8 @@ async function getNews(param) {
 }
 
 async function getStocks(param) {
-    // var url = param == undefined || param['Category'] == "" ? "http://localhost:9090/api/Stocks" : `http://localhost:9090/api/Stocks?category=${param['Category']}`;
-    const result = await $.ajax({type:"GET", url:"http://localhost:9090/api/Stocks", data:"", dataType: "json"});
+    var url = param == undefined || param['Company'] == "" ? "http://localhost:9090/api/Stocks" : `http://localhost:9090/api/Stocks?company=${param['Company']}`;
+    const result = await $.ajax({type:"GET", url:url, data:"", dataType: "json"});
     var timeSeries = result['Time Series (Daily)'];
     var sanitizedTimeSeries = {
         'firstDay': {},
@@ -860,9 +852,7 @@ async function getStocks(param) {
 
     for (let i = 0; i < 2; i++) {
         sanitizedTimeSeries[Object.keys(sanitizedTimeSeries)[i]] = Object.values(timeSeries)[i]; // Ici mettre les valeurs de la journée
-        console.log(Object.keys(timeSeries)[i]);
     }
-
 
     for(const[key, value] of Object.entries(sanitizedTimeSeries)) {
         for(const[key2, value2] of Object.entries(value)) {
@@ -880,7 +870,18 @@ async function getStocks(param) {
         sanitizedTimeSeries[Object.keys(sanitizedTimeSeries)[i]]['date'] = Object.keys(timeSeries)[i]; // Ici mettre la date de la journée
     }
 
+    // Add a default company 
+    // sanitizedTimeSeries['company'] = "TSLA";
+    // console.log(sanitizedTimeSeries);
+
     return sanitizedTimeSeries;
+}
+
+async function getSatellite(param) {
+    // var url = param == undefined || param['satellite'] == "" ? "http://localhost:9090/api/satellite" : `http://localhost:9090/api/satellite?satellite=${param['satellite']}`;
+    const result = await $.ajax({type:"GET", url:"http://localhost:9090/api/satellite?satellite=36516", data:"", dataType: "json"});
+    console.log(result);
+    return result;
 }
 
 // setInterval(function() {
