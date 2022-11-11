@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -16,9 +18,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class ApiStocks {
     @CrossOrigin(origins = "http://127.0.0.1:5500")
     @GetMapping
-    public ResponseEntity<?> getStocks() throws Exception {
+    public @ResponseBody ResponseEntity<?> getStocks(@RequestParam(required = false) String company) throws Exception {
+        // If no company specified, return the stoks of TESLA(TSLA)
+        String url = company == null ? "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=tsla&outputsize=compact&apikey=EOSDO58H9WPBPZIO" : "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=" + company + "&outputsize=compact&apikey=EOSDO58H9WPBPZIO";
         HttpRequest request = HttpRequest.newBuilder()
-		.uri(URI.create("https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=tsla&outputsize=compact&apikey=EOSDO58H9WPBPZIO"))
+		.uri(URI.create(url))
 		// https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol=TSLA&datatype=json&apikey=EOSDO58H9WPBPZIO
 		// https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=TSLA&interval=15&datatype=json&outputsize=compact&apikey=EOSDO58H9WPBPZIO
 		.header("accept", "application/json")
