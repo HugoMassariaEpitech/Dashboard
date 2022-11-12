@@ -84,8 +84,10 @@ function getUserData() {
                                     // addMarketPriceToDashboard(key, key2, params);
                                     break;
                                 case "Map":
+                                    addMapsParamToDashboard(key, key2, params);
                                     addMapToDashboard(key, key2, params);
-                                    // addMapboxOnMap(key, key2, params);
+                                    var map = addMapboxOnMap("-NGgJf3rgyh1hnX38Ep6");
+                                    getSatellite(key2, map)
                                     break;
                             }
                         }
@@ -139,6 +141,7 @@ function addWidgetToNavbar(type, uid) {
 
 document.addEventListener('click', async function(el) {
     if(el.target.id == "gear") {
+        console.log(el.target.parentElement.parentElement.children[1]);
         if(el.target.parentElement.parentElement.parentElement.children[1].classList.contains("hidden")) {  
             el.target.parentElement.parentElement.parentElement.children[1].classList.remove("hidden");
         } else {
@@ -224,6 +227,7 @@ document.addEventListener('click', async function(el) {
 });
 
 function apiCall(widgetType, param) {
+    console.log(widgetType);
     var apiReply = "";
     switch (widgetType) {
         case 'Jokes':
@@ -236,7 +240,7 @@ function apiCall(widgetType, param) {
             apiReply = getStocks(param);
             break;
         case 'Map':
-            apiReply = getSatellite(param);
+            // apiReply = getSatellite(param);
             break;
         default:
             break;
@@ -670,86 +674,73 @@ function addStocksParamToDashboard(widgetType, uid, param) {
 
 }
 
-function addMapToDashboard(widgetType, uid, param) {
-    var divMap = document.createElement('div');
-    divMap.className = 'container px-4 mx-auto h-96 mb-6';
-    divMap.setAttribute('id', uid + "Dashboard");
-    var divMap1 = document.createElement('div');
-    divMap1.className = 'flex flex-wrap items-center';
-    var divMap2 = document.createElement('div');
-    divMap2.className = 'w-full md:w-2/3 px-4 mb-8 h-96';
-    var divMap3 = document.createElement('div');
-    divMap3.className = 'text-center bg-dark_lighter rounded-xl h-96';
-    var divMap4 = document.createElement('div');
-    divMap4.className = 'h-96 rounded-xl';
-    divMap4.setAttribute('id', uid);
-    divMap3.appendChild(divMap4);
-    divMap2.appendChild(divMap3);
-    divMap1.appendChild(divMap2);
+function addMapsParamToDashboard(widgetType, uid, param) {
+    var divStocks = document.createElement('div');
+    divStocks.setAttribute('id', uid + 'Dashboard');
+    divStocks.className = 'w-full mb-8';
+    var div1 = document.createElement('div');
+    div1.className = 'text-center bg-dark_lighter rounded-xl pt-2 z-10 relative';
+    var span1 = document.createElement('span');
+    span1.className = 'flex justify-center items-center ml-auto bg-gray-600 hover:bg-blue-500 active:bg-blue-600 w-6 h-6 mr-2 text-xs rounded-full cursor-pointer';
+    span1.innerHTML = SVG['GEAR'];
+    div1.appendChild(span1);
+    var h1 = document.createElement('h4');
+    h1.className = 'block text-2xl text-gray-300 font-semibold pb-8';
+    h1.innerText = 'To the moon';
+    div1.appendChild(h1);
+    divStocks.appendChild(div1);
 
-    var divMap5 = document.createElement('div');
-    divMap5.className = 'w-full md:w-1/3 px-4 mb-8';
-    var divMap6 = document.createElement('div');
-    divMap6.className = 'pt-6 text-center bg-dark_lighter rounded-xl h-96';
-    divMap5.appendChild(divMap6);
-    divMap1.appendChild(divMap5);
-
+    // Options
     var div8 = document.createElement('div');
     div8.className = 'relative bg-thirdary -mt-4 z-0 rounded-b-xl h-auto hidden';
     var div9 = document.createElement('div');
-    div9.className = 'px-8 pt-8 pb-4';
-    var div10 = document.createElement('div');
-    div10.className = 'flex flex-wrap mb-6 items-center';
+    div9.className = 'px-8 pt-8 pb-4 flex flex-wrap';
+    
+    // var div10 = document.createElement('div');
+    // div10.className = 'flex flex-row mb-6';
     var div11 = document.createElement('div');
-    div11.className = 'w-full md:w-1/3 mb-2 md:mb-0 md:pr-10 md:text-right';
+    div11.className = 'w-1/2 flex flex-row items-center';
+    var div12 = document.createElement('div');
+    div12.className = 'w-full md:w-1/3 mb-2 md:mb-0 md:pr-10 md:text-right';
     var label1 = document.createElement('label');
     label1.className = 'text-lg text-white';
     label1.innerText = 'Refresh rate';
-    div11.appendChild(label1);
-    div10.appendChild(div11);
-    var div12 = document.createElement('div');
-    div12.className = 'w-full md:w-2/3';
+    div12.appendChild(label1);
+    div11.appendChild(div12);
+    var div13 = document.createElement('div');
+    div13.className = 'w-full md:w-2/3';
     var input1 = document.createElement('input');
     input1.className = 'w-full px-6 leading-7 bg-white border-2 border-blue-400 rounded-3xl outline-none appearance-none stroke-none';
     input1.type = 'number';
-    div12.appendChild(input1);
-    div10.appendChild(div12);
-    div9.appendChild(div10);
-    var div13 = document.createElement('div');
-    div13.className = 'flex flex-wrap mb-6 items-center';
-    var div14 = document.createElement('div');
-    div14.className = 'w-full md:w-1/3 mb-2 md:mb-0 md:pr-10 md:text-right';
+    input1.value = param['refreshRate'] != undefined ? param['refreshRate'] : 86400;
+    div13.appendChild(input1);
+    div11.appendChild(div13);
+    div9.appendChild(div11);
+
+    var div21 = document.createElement('div');
+    div21.className = 'w-1/2 flex flex-row items-center';
+    var div22 = document.createElement('div');
+    div22.className = 'w-full md:w-1/3 mb-2 md:mb-0 md:pr-10 md:text-right';
     var label2 = document.createElement('label');
     label2.className = 'text-lg text-white';
-    label2.innerText = 'Company';
-    div14.appendChild(label2);
-    div13.appendChild(div14);
-    var div15 = document.createElement('div');
-    div15.className = 'w-full md:w-2/3';
+    label2.innerText = 'Satellite';
+    div22.appendChild(label2);
+    div21.appendChild(div22);
+    var div23 = document.createElement('div');
+    div23.className = 'w-full md:w-2/3';
     var input2 = document.createElement('input');
-    input2.className = 'w-full px-6 leading-7 bg-white border-2 border-blue-400 rounded-3xl outline-none';
+    input2.className = 'w-full px-6 leading-7 bg-white border-2 border-blue-400 rounded-3xl outline-none appearance-none stroke-none';
     input2.type = 'text';
-    div15.appendChild(input2);
-    div13.appendChild(div15);
-    div9.appendChild(div13);
-    var divCountry = document.createElement('div');
-    divCountry.className = 'flex flex-wrap items-center';
-    var divCountryText = document.createElement('div');
-    divCountryText.className = 'w-full md:w-1/3 mb-2 md:mb-0 md:pr-10 md:text-right';
-    var labelCountryText = document.createElement('label');
-    labelCountryText.className = 'text-lg text-white';
-    labelCountryText.innerText = 'Country';
-    divCountryText.appendChild(labelCountryText);
-    divCountry.appendChild(divCountryText);
-    var divCountryInput = document.createElement('div');
-    divCountryInput.className = 'w-full md:w-2/3';
-    var inputCountry = document.createElement('input');
-    inputCountry.className = 'w-full px-6 leading-7 bg-white border-2 border-blue-400 rounded-3xl outline-none';
-    inputCountry.type = 'text';
-    divCountryInput.appendChild(inputCountry);
-    divCountry.appendChild(divCountryInput);
-    div9.appendChild(divCountry);
+    input2.value = param['Company'] != undefined ? param['Company'] : 'TSLA';
+    div23.appendChild(input2);
+    div21.appendChild(div23);
+    // div10.appendChild(div21);
+    div9.appendChild(div21);
+
+    // TODO : Select que le satellites disponibles
     div8.appendChild(div9);
+    divStocks.appendChild(div8);
+
     var div16 = document.createElement('div');
     div16.className = 'flex justify-end';
     div16.setAttribute('id', widgetType);
@@ -759,12 +750,76 @@ function addMapToDashboard(widgetType, uid, param) {
     button1.innerText = 'Update';
     div16.appendChild(button1);
     div8.appendChild(div16);
-    divMap.appendChild(div8);
+    
 
-    divMap.appendChild(divMap1);
+    document.getElementById("maps").appendChild(divStocks);
+
+}
+
+function addMapToDashboard(widgetType, uid, param) {
+    // var divMap = document.createElement('div');
+    // divMap.className = 'container px-4 mx-auto h-96 mb-6';
+    // divMap.setAttribute('id', uid + "Dashboard");
+    var divMap1 = document.createElement('div');
+    divMap1.className = 'flex flex-wrap items-stretch -m-4';
+    divMap1.setAttribute('id', uid + "Dashboard");
+    var divMap2 = document.createElement('div');
+    divMap2.className = 'w-full md:w-2/3 px-4 mb-8 h-96';
+    var divMap3 = document.createElement('div');
+    var divMap4 = document.createElement('div');
+    divMap4.className = 'h-96 rounded-xl';
+    divMap4.setAttribute('id', uid);
+    divMap3.className = 'text-center bg-dark_lighter rounded-xl h-96 pt-4';
+
+    divMap3.appendChild(divMap4);
+    divMap2.appendChild(divMap3);
+    divMap1.appendChild(divMap2);
+
     console.log('dom' + uid);
 
-    document.getElementById('maps').appendChild(divMap);
+
+    var divMap5 = document.createElement('div');
+    divMap5.className = 'w-full md:w-1/3 px-4 mb-8';
+    var divMap6 = document.createElement('div');
+    divMap6.className = 'pt-6 text-center bg-dark_lighter rounded-xl h-96';
+    var divMap7 = document.createElement('div');
+    divMap7.className = 'px-6 mb-8 round';
+    var divMap8 = document.createElement('div');
+    divMap8.className = 'flex mb-8 justify-between items-center';
+    var p1 = document.createElement('p');
+    p1.className = 'text-gray-300 font-medium';
+    p1.innerText = 'Science';
+    divMap8.appendChild(p1);
+    divMap7.appendChild(divMap8);
+    var divMap9 = document.createElement('div');
+    var h1 = document.createElement('h3');
+    h1.className = 'text-2xl text-gray-100 font-semibold mb-2';
+    h1.innerText = 'Science';
+    var p2 = document.createElement('p');
+    p2.className = 'block text-xs text-gray-300 font-semibold mb-6';
+    p2.setAttribute('id', 'science');
+    p2.innerText = 'Science';
+    divMap9.appendChild(h1);
+    divMap9.appendChild(p2);
+    divMap7.appendChild(divMap9);
+    divMap6.appendChild(divMap7);
+
+    var divMap10 = document.createElement('div');
+    divMap10.className = 'p-6 flex items-center justify-between';
+    var divMap11 = document.createElement('div');
+    var span1 = document.createElement('span');
+    span1.className = 'inline-block py-1 px-2 rounded-full bg-white text-xs text-blue-500';
+    span1.innerText = 'Date';
+    divMap11.appendChild(span1);
+    divMap10.appendChild(divMap11);
+
+    divMap6.appendChild(divMap10);
+
+    divMap5.appendChild(divMap6);
+    divMap1.appendChild(divMap5);
+
+
+    document.getElementById('maps').appendChild(divMap1);
 }
 
 function removeWidgetFromNavbar(uid) {
@@ -775,28 +830,17 @@ function removeWidgetFromDashboard(uid) {
     document.getElementById(uid).remove();
 }
 
-// function addMapboxOnMap(uid) {
-//     console.log(object);
-//     mapboxgl.accessToken = 'pk.eyJ1IjoibWlzdGVyaG0iLCJhIjoiY2tvc2k2NzdtMDFwYzJwcng4aDRraWczeiJ9.OlrnunjFsM20lBB73JTmig';
-//     var map = new mapboxgl.Map({
-//         container: uid,
-//         style: 'mapbox://styles/mapbox/streets-v11',
-//         center: [-74.5, 40],
-//         zoom: 9
-//     });
-//     map.scrollZoom.disable();
-// }
 
-mapboxgl.accessToken = 'pk.eyJ1IjoibWlzdGVyaG0iLCJhIjoiY2tvc2k2NzdtMDFwYzJwcng4aDRraWczeiJ9.OlrnunjFsM20lBB73JTmig';
-var map = new mapboxgl.Map({
-    container: 'map',
-    style: 'mapbox://styles/misterhm/cl9zevzwf00hi14p04xqrrb96',
-    attributionControl: false,
-    zoom: 0.5,
-    dragPan: false,
-    center: [51.160, 6.630]
-});
-map.scrollZoom.disable();
+// mapboxgl.accessToken = 'pk.eyJ1IjoibWlzdGVyaG0iLCJhIjoiY2tvc2k2NzdtMDFwYzJwcng4aDRraWczeiJ9.OlrnunjFsM20lBB73JTmig';
+// var map = new mapboxgl.Map({
+//     container: 'map',
+//     style: 'mapbox://styles/misterhm/cl9zevzwf00hi14p04xqrrb96',
+//     attributionControl: false,
+//     zoom: 0.5,
+//     dragPan: false,
+//     center: [51.160, 6.630]
+// });
+// map.scrollZoom.disable();
 
 
 
@@ -877,16 +921,37 @@ async function getStocks(param) {
     return sanitizedTimeSeries;
 }
 
-async function getSatellite(param) {
+function addMapboxOnMap(uid) {
+    mapboxgl.accessToken = 'pk.eyJ1IjoibWlzdGVyaG0iLCJhIjoiY2tvc2k2NzdtMDFwYzJwcng4aDRraWczeiJ9.OlrnunjFsM20lBB73JTmig';
+    var map = new mapboxgl.Map({
+        container: uid,
+        style: 'mapbox://styles/misterhm/cl9zevzwf00hi14p04xqrrb96',
+            attributionControl: false,
+            zoom: 0.5,
+            dragPan: false,
+            center: [51.160, 6.630]
+        });
+    map.scrollZoom.disable();
+
+    return map;
+}
+
+async function getSatellite(uid, map) {
+    var map = addMapboxOnMap(uid);
     // var url = param == undefined || param['satellite'] == "" ? "http://localhost:9090/api/satellite" : `http://localhost:9090/api/satellite?satellite=${param['satellite']}`;
     const result = await $.ajax({type:"GET", url:"http://localhost:9090/api/satellite?satellite=36516", data:"", dataType: "json"});
-    console.log(result);
+    console.log(result['positions'][0]['satlongitude'], result['positions'][0]['satlatitude']);
+    // map.setCenter([data.iss_position.longitude, data.iss_position.latitude]);
+    map.setCenter([result['positions'][0]['satlongitude'], result['positions'][0]['satlatitude']]);
+    const el = document.createElement('div');
+    el.className = 'marker';
+    const marker1 = new mapboxgl.Marker(el).setLngLat([result['positions'][0]['satlongitude'], result['positions'][0]['satlatitude']]).addTo(map);
     return result;
 }
 
-// setInterval(function() {
-//     getISSPosition();
-// }, 1000);
+setInterval(function() {
+    getSatellite("-NGgJf3rgyh1hnX38Ep6", map);
+}, 1000);
 
 // function getISSPosition() {
 //     $.ajax({type:"GET", url:"http://localhost:9090/api/ISS", data:"", dataType: "json", success: function(data) {
